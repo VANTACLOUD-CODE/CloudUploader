@@ -20,7 +20,6 @@
 		7989C8532D1B69E8000A3C43 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84D2D1B69E8000A3C43 /* AuthenticationServices.framework */; };
 		7989C8542D1B69E8000A3C43 /* DirectoryService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84E2D1B69E8000A3C43 /* DirectoryService.framework */; };
 		7989C8552D1B69E8000A3C43 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84F2D1B69E8000A3C43 /* DeviceActivity.framework */; };
-		C62DC6402D214EAF0056CCB7 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = C62DC63F2D214EAF0056CCB7 /* EFQRCode */; };
 		C62DC6472D2169830056CCB7 /* MetalFX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6422D2169830056CCB7 /* MetalFX.framework */; };
 		C62DC6482D2169830056CCB7 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6432D2169830056CCB7 /* MetalKit.framework */; };
 		C62DC6492D2169830056CCB7 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6442D2169830056CCB7 /* MetalPerformanceShaders.framework */; };
@@ -121,7 +120,6 @@
 				7989C8552D1B69E8000A3C43 /* DeviceActivity.framework in Frameworks */,
 				C62DC6532D216AC80056CCB7 /* NetworkExtension.framework in Frameworks */,
 				7989C8482D1B6946000A3C43 /* BackgroundAssets.framework in Frameworks */,
-				C62DC6402D214EAF0056CCB7 /* EFQRCode in Frameworks */,
 				C62DC64B2D2169830056CCB7 /* Metal.framework in Frameworks */,
 				C62DC64D2D216AAE0056CCB7 /* WebKit.framework in Frameworks */,
 				7989C8472D1B6946000A3C43 /* BackgroundTasks.framework in Frameworks */,
@@ -206,7 +204,6 @@
 			);
 			name = CloudUploader;
 			packageProductDependencies = (
-				C62DC63F2D214EAF0056CCB7 /* EFQRCode */,
 			);
 			productName = CloudUploader;
 			productReference = 79EEFF892D1B643E00EDED5D /* CloudUploader.app */;
@@ -237,7 +234,6 @@
 			mainGroup = 7961D2FC2D1B3A8500AB8E83;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7961D3062D1B3A8500AB8E83 /* Products */;
@@ -470,25 +466,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EFPrefix/EFQRCode";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.2.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		C62DC63F2D214EAF0056CCB7 /* EFQRCode */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */;
-			productName = EFQRCode;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7961D2FD2D1B3A8500AB8E83 /* Project object */;
 }
