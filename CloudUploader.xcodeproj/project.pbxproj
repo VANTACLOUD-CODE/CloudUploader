@@ -1,0 +1,494 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7989C8352D1B67D6000A3C43 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8342D1B67D6000A3C43 /* SwiftUI.framework */; };
+		7989C8372D1B67DF000A3C43 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8362D1B67DF000A3C43 /* Foundation.framework */; };
+		7989C8452D1B6946000A3C43 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8402D1B6946000A3C43 /* Cocoa.framework */; };
+		7989C8462D1B6946000A3C43 /* BrowserEngineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8412D1B6946000A3C43 /* BrowserEngineKit.framework */; };
+		7989C8472D1B6946000A3C43 /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8422D1B6946000A3C43 /* BackgroundTasks.framework */; };
+		7989C8482D1B6946000A3C43 /* BackgroundAssets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8432D1B6946000A3C43 /* BackgroundAssets.framework */; };
+		7989C8492D1B6946000A3C43 /* BrowserEngineCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C8442D1B6946000A3C43 /* BrowserEngineCore.framework */; };
+		7989C8502D1B69E8000A3C43 /* Accessibility.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84A2D1B69E8000A3C43 /* Accessibility.framework */; };
+		7989C8512D1B69E8000A3C43 /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84B2D1B69E8000A3C43 /* DeviceCheck.framework */; };
+		7989C8522D1B69E8000A3C43 /* ExceptionHandling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84C2D1B69E8000A3C43 /* ExceptionHandling.framework */; };
+		7989C8532D1B69E8000A3C43 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84D2D1B69E8000A3C43 /* AuthenticationServices.framework */; };
+		7989C8542D1B69E8000A3C43 /* DirectoryService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84E2D1B69E8000A3C43 /* DirectoryService.framework */; };
+		7989C8552D1B69E8000A3C43 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7989C84F2D1B69E8000A3C43 /* DeviceActivity.framework */; };
+		C62DC6402D214EAF0056CCB7 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = C62DC63F2D214EAF0056CCB7 /* EFQRCode */; };
+		C62DC6472D2169830056CCB7 /* MetalFX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6422D2169830056CCB7 /* MetalFX.framework */; };
+		C62DC6482D2169830056CCB7 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6432D2169830056CCB7 /* MetalKit.framework */; };
+		C62DC6492D2169830056CCB7 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6442D2169830056CCB7 /* MetalPerformanceShaders.framework */; };
+		C62DC64A2D2169830056CCB7 /* MetalPerformanceShadersGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6452D2169830056CCB7 /* MetalPerformanceShadersGraph.framework */; };
+		C62DC64B2D2169830056CCB7 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6462D2169830056CCB7 /* Metal.framework */; };
+		C62DC64D2D216AAE0056CCB7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC64C2D216AAE0056CCB7 /* WebKit.framework */; };
+		C62DC6522D216AC80056CCB7 /* ThreadNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC64E2D216AC70056CCB7 /* ThreadNetwork.framework */; };
+		C62DC6532D216AC80056CCB7 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC64F2D216AC70056CCB7 /* NetworkExtension.framework */; };
+		C62DC6542D216AC80056CCB7 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6502D216AC70056CCB7 /* Network.framework */; };
+		C62DC6552D216AC80056CCB7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62DC6512D216AC70056CCB7 /* CFNetwork.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7989C8342D1B67D6000A3C43 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		7989C8362D1B67DF000A3C43 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		7989C8402D1B6946000A3C43 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		7989C8412D1B6946000A3C43 /* BrowserEngineKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BrowserEngineKit.framework; path = System/Library/Frameworks/BrowserEngineKit.framework; sourceTree = SDKROOT; };
+		7989C8422D1B6946000A3C43 /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = System/Library/Frameworks/BackgroundTasks.framework; sourceTree = SDKROOT; };
+		7989C8432D1B6946000A3C43 /* BackgroundAssets.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundAssets.framework; path = System/Library/Frameworks/BackgroundAssets.framework; sourceTree = SDKROOT; };
+		7989C8442D1B6946000A3C43 /* BrowserEngineCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BrowserEngineCore.framework; path = System/Library/Frameworks/BrowserEngineCore.framework; sourceTree = SDKROOT; };
+		7989C84A2D1B69E8000A3C43 /* Accessibility.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accessibility.framework; path = System/Library/Frameworks/Accessibility.framework; sourceTree = SDKROOT; };
+		7989C84B2D1B69E8000A3C43 /* DeviceCheck.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceCheck.framework; path = System/Library/Frameworks/DeviceCheck.framework; sourceTree = SDKROOT; };
+		7989C84C2D1B69E8000A3C43 /* ExceptionHandling.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExceptionHandling.framework; path = System/Library/Frameworks/ExceptionHandling.framework; sourceTree = SDKROOT; };
+		7989C84D2D1B69E8000A3C43 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		7989C84E2D1B69E8000A3C43 /* DirectoryService.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DirectoryService.framework; path = System/Library/Frameworks/DirectoryService.framework; sourceTree = SDKROOT; };
+		7989C84F2D1B69E8000A3C43 /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
+		79EEFF892D1B643E00EDED5D /* CloudUploader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudUploader.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C62DC6422D2169830056CCB7 /* MetalFX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalFX.framework; path = System/Library/Frameworks/MetalFX.framework; sourceTree = SDKROOT; };
+		C62DC6432D2169830056CCB7 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		C62DC6442D2169830056CCB7 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
+		C62DC6452D2169830056CCB7 /* MetalPerformanceShadersGraph.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShadersGraph.framework; path = System/Library/Frameworks/MetalPerformanceShadersGraph.framework; sourceTree = SDKROOT; };
+		C62DC6462D2169830056CCB7 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		C62DC64C2D216AAE0056CCB7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		C62DC64E2D216AC70056CCB7 /* ThreadNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ThreadNetwork.framework; path = System/Library/Frameworks/ThreadNetwork.framework; sourceTree = SDKROOT; };
+		C62DC64F2D216AC70056CCB7 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		C62DC6502D216AC70056CCB7 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
+		C62DC6512D216AC70056CCB7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		79EE00382D1B667800EDED5D /* Exceptions for "CloudUploader" folder in "CloudUploader" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AlbumInputView.swift,
+				AlbumSelectionView.swift,
+				AppDelegate.swift,
+				Assets.xcassets,
+				AuthenticationSheetView.swift,
+				AuthRequiredView.swift,
+				CloudUploaderApp.swift,
+				CloudUploaderViewModel.swift,
+				ConfirmationView.swift,
+				ContentView.swift,
+				KeychainHelper.swift,
+				LocalServer.swift,
+				ModernButtonStyle.swift,
+				QRCodeOverlayView.swift,
+				Resources/album_id.txt,
+				Resources/album_info.txt,
+				Resources/CO_ExportStats.txt,
+				Resources/credentials.json,
+				Scripts/authenticate.py,
+				Scripts/create_album.py,
+				Scripts/list_shared_albums.py,
+				Scripts/requirements.txt,
+				Scripts/test_api.py,
+				Scripts/upload_script.py,
+				StyledButtonStyle.swift,
+				TokenManager.swift,
+				WebViewWrapper.swift,
+			);
+			target = 79EEFF882D1B643E00EDED5D /* CloudUploader */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7961D3072D1B3A8500AB8E83 /* CloudUploader */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				79EE00382D1B667800EDED5D /* Exceptions for "CloudUploader" folder in "CloudUploader" target */,
+			);
+			path = CloudUploader;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		79EEFF862D1B643E00EDED5D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7989C8502D1B69E8000A3C43 /* Accessibility.framework in Frameworks */,
+				7989C8512D1B69E8000A3C43 /* DeviceCheck.framework in Frameworks */,
+				C62DC6492D2169830056CCB7 /* MetalPerformanceShaders.framework in Frameworks */,
+				7989C8522D1B69E8000A3C43 /* ExceptionHandling.framework in Frameworks */,
+				7989C8532D1B69E8000A3C43 /* AuthenticationServices.framework in Frameworks */,
+				7989C8542D1B69E8000A3C43 /* DirectoryService.framework in Frameworks */,
+				7989C8552D1B69E8000A3C43 /* DeviceActivity.framework in Frameworks */,
+				C62DC6532D216AC80056CCB7 /* NetworkExtension.framework in Frameworks */,
+				7989C8482D1B6946000A3C43 /* BackgroundAssets.framework in Frameworks */,
+				C62DC6402D214EAF0056CCB7 /* EFQRCode in Frameworks */,
+				C62DC64B2D2169830056CCB7 /* Metal.framework in Frameworks */,
+				C62DC64D2D216AAE0056CCB7 /* WebKit.framework in Frameworks */,
+				7989C8472D1B6946000A3C43 /* BackgroundTasks.framework in Frameworks */,
+				C62DC6482D2169830056CCB7 /* MetalKit.framework in Frameworks */,
+				C62DC6472D2169830056CCB7 /* MetalFX.framework in Frameworks */,
+				7989C8492D1B6946000A3C43 /* BrowserEngineCore.framework in Frameworks */,
+				C62DC6522D216AC80056CCB7 /* ThreadNetwork.framework in Frameworks */,
+				7989C8462D1B6946000A3C43 /* BrowserEngineKit.framework in Frameworks */,
+				C62DC6552D216AC80056CCB7 /* CFNetwork.framework in Frameworks */,
+				7989C8452D1B6946000A3C43 /* Cocoa.framework in Frameworks */,
+				C62DC6542D216AC80056CCB7 /* Network.framework in Frameworks */,
+				7989C8372D1B67DF000A3C43 /* Foundation.framework in Frameworks */,
+				7989C8352D1B67D6000A3C43 /* SwiftUI.framework in Frameworks */,
+				C62DC64A2D2169830056CCB7 /* MetalPerformanceShadersGraph.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7961D2FC2D1B3A8500AB8E83 = {
+			isa = PBXGroup;
+			children = (
+				7961D3072D1B3A8500AB8E83 /* CloudUploader */,
+				7989C8332D1B67D6000A3C43 /* Frameworks */,
+				7961D3062D1B3A8500AB8E83 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7961D3062D1B3A8500AB8E83 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				79EEFF892D1B643E00EDED5D /* CloudUploader.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7989C8332D1B67D6000A3C43 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C62DC6512D216AC70056CCB7 /* CFNetwork.framework */,
+				C62DC6502D216AC70056CCB7 /* Network.framework */,
+				C62DC64F2D216AC70056CCB7 /* NetworkExtension.framework */,
+				C62DC64E2D216AC70056CCB7 /* ThreadNetwork.framework */,
+				C62DC64C2D216AAE0056CCB7 /* WebKit.framework */,
+				C62DC6462D2169830056CCB7 /* Metal.framework */,
+				C62DC6422D2169830056CCB7 /* MetalFX.framework */,
+				C62DC6432D2169830056CCB7 /* MetalKit.framework */,
+				C62DC6442D2169830056CCB7 /* MetalPerformanceShaders.framework */,
+				C62DC6452D2169830056CCB7 /* MetalPerformanceShadersGraph.framework */,
+				7989C84A2D1B69E8000A3C43 /* Accessibility.framework */,
+				7989C84D2D1B69E8000A3C43 /* AuthenticationServices.framework */,
+				7989C84F2D1B69E8000A3C43 /* DeviceActivity.framework */,
+				7989C84B2D1B69E8000A3C43 /* DeviceCheck.framework */,
+				7989C84E2D1B69E8000A3C43 /* DirectoryService.framework */,
+				7989C84C2D1B69E8000A3C43 /* ExceptionHandling.framework */,
+				7989C8432D1B6946000A3C43 /* BackgroundAssets.framework */,
+				7989C8422D1B6946000A3C43 /* BackgroundTasks.framework */,
+				7989C8442D1B6946000A3C43 /* BrowserEngineCore.framework */,
+				7989C8412D1B6946000A3C43 /* BrowserEngineKit.framework */,
+				7989C8402D1B6946000A3C43 /* Cocoa.framework */,
+				7989C8362D1B67DF000A3C43 /* Foundation.framework */,
+				7989C8342D1B67D6000A3C43 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		79EEFF882D1B643E00EDED5D /* CloudUploader */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79EEFF952D1B644000EDED5D /* Build configuration list for PBXNativeTarget "CloudUploader" */;
+			buildPhases = (
+				79EEFF852D1B643E00EDED5D /* Sources */,
+				79EEFF862D1B643E00EDED5D /* Frameworks */,
+				79EEFF872D1B643E00EDED5D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CloudUploader;
+			packageProductDependencies = (
+				C62DC63F2D214EAF0056CCB7 /* EFQRCode */,
+			);
+			productName = CloudUploader;
+			productReference = 79EEFF892D1B643E00EDED5D /* CloudUploader.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7961D2FD2D1B3A8500AB8E83 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					79EEFF882D1B643E00EDED5D = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 7961D3002D1B3A8500AB8E83 /* Build configuration list for PBXProject "CloudUploader" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7961D2FC2D1B3A8500AB8E83;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7961D3062D1B3A8500AB8E83 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				79EEFF882D1B643E00EDED5D /* CloudUploader */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		79EEFF872D1B643E00EDED5D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		79EEFF852D1B643E00EDED5D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7961D3122D1B3A8700AB8E83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7961D3132D1B3A8700AB8E83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		79EEFF962D1B644000EDED5D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CloudUploader/CloudUploader.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CloudUploader/Preview Content\"";
+				DEVELOPMENT_TEAM = 89GQ9B4ZT7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CloudUploader/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CloudUploader;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vantacloud.CloudUploader;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		79EEFF972D1B644000EDED5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CloudUploader/CloudUploader.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CloudUploader/Preview Content\"";
+				DEVELOPMENT_TEAM = 89GQ9B4ZT7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CloudUploader/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CloudUploader;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vantacloud.CloudUploader;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7961D3002D1B3A8500AB8E83 /* Build configuration list for PBXProject "CloudUploader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7961D3122D1B3A8700AB8E83 /* Debug */,
+				7961D3132D1B3A8700AB8E83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		79EEFF952D1B644000EDED5D /* Build configuration list for PBXNativeTarget "CloudUploader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				79EEFF962D1B644000EDED5D /* Debug */,
+				79EEFF972D1B644000EDED5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EFPrefix/EFQRCode";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.2.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C62DC63F2D214EAF0056CCB7 /* EFQRCode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C62DC63E2D214EAF0056CCB7 /* XCRemoteSwiftPackageReference "EFQRCode" */;
+			productName = EFQRCode;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 7961D2FD2D1B3A8500AB8E83 /* Project object */;
+}

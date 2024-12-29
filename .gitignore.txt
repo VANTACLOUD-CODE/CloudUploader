@@ -1,0 +1,27 @@
+# macOS specific
+.DS_Store
+
+# Xcode specific
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Swift Package Manager
+Packages/
+.swiftpm/
+.build/
+
+# Ignore sensitive files
+/Library/Application\ Support/CloudUploader/credentials.json
+/Library/Application\ Support/CloudUploader/token.json
+
+# Ignore Python compiled files
+*.pyc
+__pycache__/
