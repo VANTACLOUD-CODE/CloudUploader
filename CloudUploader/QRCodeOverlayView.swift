@@ -4,87 +4,82 @@ import CoreImage.CIFilterBuiltins
 struct QRCodeOverlayView: View {
     var url: URL
     var onDismiss: () -> Void
-    @State private var isQRExpanded = false // State to toggle QR code size
+    @State private var isQRExpanded = false
 
     var body: some View {
         ZStack {
-            // Dim background to cover the entire screen
+            // Background with tap gesture
             Color.black.opacity(0.69)
                 .edgesIgnoringSafeArea(.all)
+                .contentShape(Rectangle())
                 .onTapGesture {
-                    if isQRExpanded {
-                        withAnimation(.spring()) {
-                            isQRExpanded.toggle() // Scale back down
+                    withAnimation(.spring()) {
+                        if isQRExpanded {
+                            onDismiss()
+                        } else {
+                            onDismiss()
                         }
-                    } else {
-                        onDismiss() // Dismiss the overlay
                     }
                 }
-
-            VStack(spacing: 10) {
-                // Header
-                if !isQRExpanded {
-                    Text("🔗 Link Details 🔗")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .transition(.opacity)
-                        .animation(.easeInOut, value: isQRExpanded)
-                }
-
-                // Info text
-                if !isQRExpanded {
-                    Text("This link has been copied to your clipboard.")
-                        .font(.body)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.secondary)
-                        .transition(.opacity)
-                        .animation(.easeInOut, value: isQRExpanded)
-                }
-
-                // QR Code with animation
-                if let qrImage = generateQRCode(from: url.absoluteString) {
+            
+            if let qrImage = generateQRCode(from: url.absoluteString) {
+                if isQRExpanded {
+                    // When expanded, just show the QR code
                     Image(nsImage: qrImage)
                         .resizable()
                         .interpolation(.none)
                         .scaledToFit()
-                        .cornerRadius(10) // Rounded corners for the QR code
-                        .frame(
-                            width: isQRExpanded ? 600 : 269,
-                            height: isQRExpanded ? 600 : 269
-                        ) // Dynamically sized QR code with screen constraints
+                        .frame(width: 600, height: 600)
+                        .cornerRadius(10)
                         .onTapGesture {
                             withAnimation(.spring()) {
-                                isQRExpanded.toggle() // Toggle expanded state
+                                isQRExpanded.toggle()
                             }
                         }
-                        .padding(isQRExpanded ? 0 : 20) // Remove padding in expanded state
                 } else {
-                    Text("Failed to generate QR Code")
-                        .foregroundColor(.red)
-                }
-
-                // Cancel button
-                if !isQRExpanded {
-                    Button(action: onDismiss) {
-                        HStack {
-                            Image(systemName: "xmark.circle")
-                            Text("Close")
-                                .font(.headline)
+                    // Normal overlay view
+                    VStack(spacing: 10) {
+                        Text("🔗 Link Details 🔗")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .transition(.opacity)
+                        
+                        Text("This link has been copied to your clipboard.")
+                            .font(.body)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                            .transition(.opacity)
+                        
+                        Image(nsImage: qrImage)
+                            .resizable()
+                            .interpolation(.none)
+                            .scaledToFit()
+                            .frame(width: 269, height: 269)
+                            .cornerRadius(10)
+                            .padding(20)
+                            .onTapGesture {
+                                withAnimation(.spring()) {
+                                    isQRExpanded.toggle()
+                                }
+                            }
+                        
+                        Button(action: onDismiss) {
+                            HStack {
+                                Image(systemName: "xmark.circle")
+                                Text("Close")
+                                    .font(.headline)
+                            }
                         }
+                        .buttonStyle(ModernButtonStyle(backgroundColor: .gray))
+                        .padding(.top, 10)
                     }
-                    .buttonStyle(ModernButtonStyle(backgroundColor: .gray))
-                    .padding(.top, 10) // Add a little spacing at the bottom
+                    .padding(30)
+                    .frame(maxWidth: 400, maxHeight: 500)
+                    .background(Color(NSColor.windowBackgroundColor))
+                    .cornerRadius(20)
+                    .shadow(radius: 20)
                 }
             }
-            .padding(isQRExpanded ? 0 : 30) // Remove padding when expanded
-            .frame(
-                maxWidth: isQRExpanded ? .infinity : 400,
-                maxHeight: isQRExpanded ? .infinity : 500
-            ) // Larger overlay size with screen restrictions
-            .background(isQRExpanded ? Color.black : Color(NSColor.windowBackgroundColor))
-            .cornerRadius(isQRExpanded ? 0 : 20) // No rounded corners when expanded
-            .shadow(radius: isQRExpanded ? 0 : 20)
-            .edgesIgnoringSafeArea(isQRExpanded ? .all : .init())
         }
     }
 

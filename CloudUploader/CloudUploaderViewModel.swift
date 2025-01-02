@@ -91,6 +91,7 @@ class CloudUploaderViewModel: ObservableObject {
     func authenticateInApp() {
         ConsoleManager.shared.log("🔐 Starting authentication process...", color: .yellow)
         let config = WKWebViewConfiguration()
+        config.websiteDataStore = WKWebsiteDataStore.nonPersistent()
         let web = WKWebView(frame: .zero, configuration: config)
         if let url = buildAuthURL() {
             ConsoleManager.shared.log("📱 Opening Google authentication...", color: .blue)
@@ -302,11 +303,15 @@ class CloudUploaderViewModel: ObservableObject {
               let clientId = installed["client_id"] as? String else {
             return nil
         }
+        
         let base = "https://accounts.google.com/o/oauth2/v2/auth"
-        let scope = "scope=email"
-        let extras = "access_type=offline&include_granted_scopes=true&redirect_uri=http://localhost:8080&response_type=code&login_hint=sirak%40sirakstudios.com"
-        let urlString = "\(base)?\(scope)&\(extras)&client_id=\(clientId)"
-        return URL(string: urlString)
+        let scope = "https://www.googleapis.com/auth/photoslibrary"
+        let redirectUri = "http://localhost"
+        let loginHint = "sirak@sirakstudios.com"
+        let extras = "access_type=offline&include_granted_scopes=true&redirect_uri=\(redirectUri)&response_type=code&login_hint=\(loginHint)"
+        let urlString = "\(base)?client_id=\(clientId)&scope=\(scope)&\(extras)"
+        
+        return URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
     }
     
     private func loadCredentials() -> [String: Any]? {
@@ -399,5 +404,31 @@ class CloudUploaderViewModel: ObservableObject {
     func handleLinkOpened(link: String) {
         ConsoleManager.shared.log("🌐 Opening album link in browser", color: .blue)
         ConsoleManager.shared.log("🔗 \(link)", color: .gray)
+    }
+    
+    func handleAuthCode(_ code: String) {
+        ConsoleManager.shared.log("🔐 Authorization code received, processing...", color: .blue)
+        
+        // Run the token exchange script
+        runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/token_exchange.py", arguments: [code]) { output in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                
+                if output.contains("success") {
+                    ConsoleManager.shared.log("✅ Token generated successfully", color: .green)
+                    self.checkTokenStatus() // Refresh token status
+                    self.showAuthSheet = false
+                    self.webView = nil
+                    
+                    // Show success notification
+                    let notification = NSUserNotification()
+                    notification.title = "Authentication Successful"
+                    notification.informativeText = "Token has been generated successfully"
+                    NSUserNotificationCenter.default.deliver(notification)
+                } else {
+                    ConsoleManager.shared.log("❌ Failed to generate token", color: .red)
+                }
+            }
+        }
     }
 }

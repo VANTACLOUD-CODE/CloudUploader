@@ -5,17 +5,20 @@
     <key>CFBundleURLTypes</key>
     <array>
         <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string></string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <!-- Add your URL schemes here -->
+                <string>clouduploader</string>
             </array>
+            <key>CFBundleURLName</key>
+            <string>com.yourcompany.clouduploader</string>
         </dict>
     </array>
     <key>com.apple.security.network.client</key>
     <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

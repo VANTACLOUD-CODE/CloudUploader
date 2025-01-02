@@ -21,6 +21,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // If you're handling URL opens, retain existing implementation or remove if unused
     func application(_ application: NSApplication, open urls: [URL]) {
-        // No implementation needed as per previous content
+        guard let url = urls.first else { return }
+        
+        // Handle both localhost and custom scheme
+        if url.host == "localhost" || (url.scheme == "clouduploader" && url.host == "oauth-callback") {
+            if let code = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems?.first(where: { $0.name == "code" })?.value {
+                CloudUploaderViewModel.shared.handleAuthCode(code)
+            }
+        }
     }
 }
