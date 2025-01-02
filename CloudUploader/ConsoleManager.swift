@@ -11,20 +11,20 @@ class ConsoleManager: ObservableObject {
     // MARK: - System Messages
     func systemStartup() {
         clear()
-        log("System Initializing...", color: .gray)
+        log("🔄 System Initializing...", color: .gray)
         log("🚀 Cloud Uploader Started", color: .green)
         log("----------------------------------------", color: .gray)
-        log("Performing initial system checks...", color: .blue)
+        log("⚙️ Performing initial system checks...", color: .gray)
     }
     
     // MARK: - Authentication Messages
     func logAuthStatus(status: String, isValid: Bool) {
-        log("Token Status: \(isValid ? "✅" : "❌") \(status)", 
+        log("🔑 Token Status: \(isValid ? "✅" : "❌") \(status)", 
             color: isValid ? .green : .red)
     }
     
     func logAuthProcess(step: String) {
-        log("🔐 Authentication: \(step)", color: .yellow)
+        log("🔐 Authentication: \(step)", color: .orange.opacity(0.9))
     }
     
     func logAuthCancelled() {
@@ -78,13 +78,13 @@ class ConsoleManager: ObservableObject {
         if hasValidToken {
             log("Cloud Uploader Ready - Click Start to Begin", color: .green)
         } else {
-            log("⚠️ No valid token found", color: .orange)
+            log("⚠️ No valid token found", color: .red)
             log("ℹ️ Generate Token to begin", color: .blue)
         }
     }
     
-    // Base logging method
-    func log(_ message: String, color: Color = .blue) {
+    // Base logging method with adjusted default color
+    func log(_ message: String, color: Color = Color.blue.opacity(0.9)) {
         DispatchQueue.main.async {
             let timestamp = Self.getCurrentTimestamp()
             let formattedMessage = "[\(timestamp)] \(message)"

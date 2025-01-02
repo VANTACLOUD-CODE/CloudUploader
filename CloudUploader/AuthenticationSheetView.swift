@@ -49,7 +49,7 @@ struct AuthenticationSheetView: View {
                 .buttonStyle(.plain)
             }
             .padding(0) // Space around the WebView
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
             .cornerRadius(20)
             .shadow(radius: 20)
         }

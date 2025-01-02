@@ -75,7 +75,7 @@ struct QRCodeOverlayView: View {
                     }
                     .padding(30)
                     .frame(maxWidth: 400, maxHeight: 500)
-                    .background(Color(NSColor.windowBackgroundColor))
+                    .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
                     .cornerRadius(20)
                     .shadow(radius: 20)
                 }

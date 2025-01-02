@@ -89,7 +89,7 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     func authenticateInApp() {
-        ConsoleManager.shared.log("🔐 Starting authentication process...", color: .yellow)
+        ConsoleManager.shared.log("🔐 Starting authentication process...", color: Color.orange.opacity(0.9))
         let config = WKWebViewConfiguration()
         config.websiteDataStore = WKWebsiteDataStore.nonPersistent()
         let web = WKWebView(frame: .zero, configuration: config)
@@ -103,7 +103,7 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     func runNewShootScript(albumName: String) {
-        ConsoleManager.shared.log("📂 Creating new album: \(albumName)...", color: .yellow)
+        ConsoleManager.shared.log("📂 Creating new album: \(albumName)...", color: Color.orange.opacity(0.9))
         runScript(scriptPath: createAlbumScriptPath, arguments: [albumName]) { output in
             DispatchQueue.main.async {
                 self.captureOneStatus = output
@@ -200,7 +200,7 @@ class CloudUploaderViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func checkAPIStatus() {
-        ConsoleManager.shared.log("🔍 Checking API reachability...", color: .yellow)
+        ConsoleManager.shared.log("🔍 Checking API reachability...", color: Color.orange.opacity(0.9))
         DispatchQueue.global().async {
             sleep(1) // Simulated API check
             DispatchQueue.main.async {
@@ -211,7 +211,8 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     private func checkTokenStatus() {
-        ConsoleManager.shared.log("🔑 Checking token status...", color: .yellow)
+        let customYellow = Color(red: 0.8, green: 0.6, blue: 0.0)  // Darker yellow
+        ConsoleManager.shared.log("🔑 Checking token status...", color: Color.orange.opacity(0.9))
         
         // Set initial state to checking
         tokenStatus = "❌ Checking..."
@@ -262,7 +263,7 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     private func fetchAlbumInfo() {
-        ConsoleManager.shared.log("🔍 Checking album status...", color: .yellow)
+        ConsoleManager.shared.log("🔍 Checking album status...", color: Color.orange.opacity(0.9))
         DispatchQueue.global().async {
             guard FileManager.default.fileExists(atPath: self.albumIdPath),
                   FileManager.default.fileExists(atPath: self.albumInfoPath) else {

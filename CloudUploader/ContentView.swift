@@ -26,7 +26,8 @@ struct ContentView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                .shadow(radius: 2)
         )
     }
     
@@ -41,7 +42,8 @@ struct ContentView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                .shadow(radius: 2)
         )
     }
     
@@ -63,7 +65,8 @@ struct ContentView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                .shadow(radius: 2)
         )
     }
     
@@ -106,7 +109,8 @@ struct ContentView: View {
                     .padding(.horizontal, 20)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(NSColor.controlBackgroundColor))
+                            .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                            .shadow(radius: 2)
                     )
                     
                     // Token Status
@@ -125,7 +129,7 @@ struct ContentView: View {
                     }) {
                         HStack {
                             Image(systemName: "gear")
-                            Text("Generate Token")
+                            Text(viewModel.showRefreshButton ? "Refresh Token" : "Generate Token")
                                 .font(.headline)
                         }
                         .frame(maxWidth: .infinity)
@@ -218,7 +222,8 @@ struct ContentView: View {
                     .padding(10)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(NSColor.textBackgroundColor))
+                            .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                            .shadow(radius: 3)
                     )
                 }
                 .padding(.horizontal)
@@ -242,7 +247,7 @@ struct ContentView: View {
             }
             .padding()
             .frame(minWidth: 842, minHeight: 800)
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(Color(NSColor.windowBackgroundColor).opacity(0.95))
             .onAppear {
                 viewModel.initialize()
             }
