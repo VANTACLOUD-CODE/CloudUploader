@@ -1,0 +1,26 @@
+Cloud Uploader for Google Photos
+
+Professional photo management tool designed for photographers and photo booth operators. Seamlessly upload photos to Google Photos with real-time monitoring and automated workflows.
+
+KEY FEATURES:
+• Automated photo monitoring and uploading
+• Secure Google Photos integration
+• Real-time status monitoring
+• Album management and organization
+• Shareable album links
+• QR code generation for easy mobile access
+• Professional workflow optimization
+
+Perfect for:
+• Photo booth operations
+• Event photographers
+• Studio photographers
+• Professional photography workflows
+• Automated photo management
+
+Technical Features:
+• Native macOS application
+• Secure OAuth 2.0 authentication
+• Real-time folder monitoring
+• Automatic token refresh
+• Minimal system resource usage

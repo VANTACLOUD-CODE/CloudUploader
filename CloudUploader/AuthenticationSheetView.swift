@@ -26,9 +26,14 @@ struct AuthenticationSheetView: View {
                     // Loading placeholder
                     VStack(spacing: 20) {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                        Text("🔐 Loading Authentication...")
+                            .scaleEffect(1.5)
+                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        Text("🔐 Authentication Loading...")
+                            .font(.headline)
                             .foregroundColor(.secondary)
+                        Text("Preparing secure sign-in...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary.opacity(0.8))
                     }
                     .frame(width: 650, height: 650) // Reasonable size for placeholder
                     .background(Color(NSColor.windowBackgroundColor))

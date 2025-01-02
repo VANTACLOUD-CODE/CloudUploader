@@ -6,14 +6,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Initialize theme manager first
+        let themeManager = ThemeManager.shared
+        
         // Delay to ensure windows are initialized
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let mainWindow = NSApplication.shared.windows.first {
                 self.window = mainWindow
-                self.windowDelegate = AppWindowDelegate {
-                    // Trigger quit confirmation via shared ViewModel
-                    CloudUploaderViewModel.shared.showQuitConfirmation = true
-                }
+                self.window.title = "Cloud Uploader"
+                
+                // Add title bar accessory
+                let accessoryView = NSHostingView(rootView: ThemeSwitcher())
+                let accessoryController = NSTitlebarAccessoryViewController()
+                accessoryController.view = accessoryView
+                accessoryController.layoutAttribute = .right
+                accessoryController.view.frame = NSRect(x: 0, y: 0, width: 40, height: 30)
+                self.window.addTitlebarAccessoryViewController(accessoryController)
+                
+                // Set window appearance
+                let appearance = NSAppearance(named: themeManager.isDarkMode ? .darkAqua : .aqua)
+                self.window.appearance = appearance
+                
+                self.windowDelegate = AppWindowDelegate()
                 self.window.delegate = self.windowDelegate
             }
         }

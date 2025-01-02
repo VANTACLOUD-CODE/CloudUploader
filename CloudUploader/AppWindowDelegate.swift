@@ -1,15 +1,25 @@
 import Cocoa
 import SwiftUI
 
-class AppWindowDelegate: NSObject, NSWindowDelegate {
-    var onCloseAttempt: () -> Void
-
-    init(onCloseAttempt: @escaping () -> Void) {
-        self.onCloseAttempt = onCloseAttempt
+@MainActor
+class AppWindowDelegate: NSObject, NSWindowDelegate, ObservableObject {
+    @Published var quitHandler = QuitConfirmationHandler.shared
+    
+    override init() {
+        super.init()
     }
-
+    
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        onCloseAttempt()
-        return false // Prevent the window from closing immediately
+        let viewModel = CloudUploaderViewModel.shared
+        if viewModel.isMonitoring {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                quitHandler.showQuitConfirmation = true
+            }
+        } else {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                quitHandler.showQuitConfirmation = true
+            }
+        }
+        return false
     }
 }

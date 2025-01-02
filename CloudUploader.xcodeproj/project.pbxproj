@@ -63,23 +63,29 @@
 		79EE00382D1B667800EDED5D /* Exceptions for "CloudUploader" folder in "CloudUploader" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AlbumInfoSectionView.swift,
 				AlbumInputView.swift,
 				AlbumSelectionView.swift,
 				AppDelegate.swift,
 				AppWindowDelegate.swift,
 				Assets.xcassets,
+				AuthButton.swift,
 				AuthenticationSheetView.swift,
 				AuthRequiredView.swift,
 				CloudUploaderApp.swift,
 				CloudUploaderViewModel.swift,
 				ConfirmationView.swift,
 				ConsoleManager.swift,
+				ConsoleView.swift,
 				ContentView.swift,
 				FolderMonitor.swift,
+				HeaderView.swift,
 				KeychainHelper.swift,
 				LocalServer.swift,
+				MainContentArea.swift,
 				ModernButtonStyle.swift,
 				QRCodeOverlayView.swift,
+				QuitConfirmationHandler.swift,
 				Resources/album_id.txt,
 				Resources/album_info.txt,
 				Resources/CO_ExportStats.txt,
@@ -90,7 +96,13 @@
 				Scripts/requirements.txt,
 				Scripts/test_api.py,
 				Scripts/upload_script.py,
+				SelectAlbumButton.swift,
+				StatusRowView.swift,
+				StatusSection.swift,
 				StyledButtonStyle.swift,
+				ThemeManager.swift,
+				ThemeSwitcher.swift,
+				TimeRemainingView.swift,
 				TokenManager.swift,
 				WebViewWrapper.swift,
 			);
@@ -394,6 +406,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CloudUploader/CloudUploader.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -424,6 +437,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = CloudUploader/CloudUploader.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;

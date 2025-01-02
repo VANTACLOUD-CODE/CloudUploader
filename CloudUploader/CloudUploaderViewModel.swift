@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
-import WebKit
+@preconcurrency import WebKit
+import UserNotifications
 
 struct StatusMessage: Identifiable {
     let id = UUID()
@@ -8,7 +9,8 @@ struct StatusMessage: Identifiable {
     let color: Color
 }
 
-class CloudUploaderViewModel: ObservableObject {
+@MainActor
+class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     static let shared = CloudUploaderViewModel()
     
     // MARK: - Published UI States
@@ -47,8 +49,8 @@ class CloudUploaderViewModel: ObservableObject {
     private let listSharedAlbumsScriptPath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/list_shared_albums.py"
     
     // MARK: - Initialization
-    private init() {
-        // No need for super.init() since we're not inheriting
+    private override init() {
+        super.init()
     }
     
     // MARK: - Public Methods
@@ -91,8 +93,14 @@ class CloudUploaderViewModel: ObservableObject {
     func authenticateInApp() {
         ConsoleManager.shared.log("🔐 Starting authentication process...", color: Color.orange.opacity(0.9))
         let config = WKWebViewConfiguration()
-        config.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        config.websiteDataStore = WKWebsiteDataStore.default()
+        let preferences = WKWebpagePreferences()
+        preferences.allowsContentJavaScript = true
+        config.defaultWebpagePreferences = preferences
+        
         let web = WKWebView(frame: .zero, configuration: config)
+        web.navigationDelegate = self
+        
         if let url = buildAuthURL() {
             ConsoleManager.shared.log("📱 Opening Google authentication...", color: .blue)
             web.load(URLRequest(url: url))
@@ -136,7 +144,12 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     func confirmQuit() {
-        NSApplication.shared.terminate(nil)
+        stopMonitoring()
+        isMonitoring = false
+        ConsoleManager.shared.log("⏹️ Monitoring stopped for quit", color: .orange)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NSApplication.shared.terminate(nil)
+        }
     }
     
     func toggleMonitoring() {
@@ -211,39 +224,35 @@ class CloudUploaderViewModel: ObservableObject {
     }
     
     private func checkTokenStatus() {
-        let customYellow = Color(red: 0.8, green: 0.6, blue: 0.0)  // Darker yellow
         ConsoleManager.shared.log("🔑 Checking token status...", color: Color.orange.opacity(0.9))
         
         // Set initial state to checking
         tokenStatus = "❌ Checking..."
         timeRemaining = "Checking..."
         
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            
-            guard FileManager.default.fileExists(atPath: self.tokenFilePath) else {
-                DispatchQueue.main.async {
-                    self.updateTokenStatus(valid: false, remainingTime: "Token not found")
+        Task {
+            guard FileManager.default.fileExists(atPath: tokenFilePath) else {
+                await MainActor.run {
+                    updateTokenStatus(valid: false, remainingTime: "Token not found")
                 }
                 return
             }
             
             do {
-                let data = try Data(contentsOf: URL(fileURLWithPath: self.tokenFilePath))
-                if let details = self.parseToken(data: data) {
-                    DispatchQueue.main.async {
+                let data = try Data(contentsOf: URL(fileURLWithPath: tokenFilePath))
+                if let details = await parseToken(data: data) {
+                    await MainActor.run {
                         let isValid = details.remainingTime > 0
-                        self.updateTokenStatus(valid: isValid, 
-                                            remainingTime: "\(details.remainingTime) minutes")
+                        updateTokenStatus(valid: isValid, remainingTime: "\(details.remainingTime) minutes")
                     }
                 } else {
-                    DispatchQueue.main.async {
-                        self.updateTokenStatus(valid: false, remainingTime: "Invalid token")
+                    await MainActor.run {
+                        updateTokenStatus(valid: false, remainingTime: "Invalid token")
                     }
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.updateTokenStatus(valid: false, remainingTime: "Failed to read token")
+                await MainActor.run {
+                    updateTokenStatus(valid: false, remainingTime: "Failed to read token")
                 }
             }
         }
@@ -322,7 +331,8 @@ class CloudUploaderViewModel: ObservableObject {
         return nil
     }
     
-    private func parseToken(data: Data) -> (remainingTime: Int, expiryDate: Date)? {
+    @MainActor
+    func parseToken(data: Data) async -> (remainingTime: Int, expiryDate: Date)? {
         do {
             if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                let expiryString = json["expiry"] as? String {
@@ -410,26 +420,112 @@ class CloudUploaderViewModel: ObservableObject {
     func handleAuthCode(_ code: String) {
         ConsoleManager.shared.log("🔐 Authorization code received, processing...", color: .blue)
         
-        // Run the token exchange script
-        runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/token_exchange.py", arguments: [code]) { output in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                
+        runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/token_exchange.py", arguments: [code]) { [weak self] output in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
                 if output.contains("success") {
-                    ConsoleManager.shared.log("✅ Token generated successfully", color: .green)
-                    self.checkTokenStatus() // Refresh token status
-                    self.showAuthSheet = false
-                    self.webView = nil
-                    
-                    // Show success notification
-                    let notification = NSUserNotification()
-                    notification.title = "Authentication Successful"
-                    notification.informativeText = "Token has been generated successfully"
-                    NSUserNotificationCenter.default.deliver(notification)
+                    self.handleSuccessfulAuth()
                 } else {
-                    ConsoleManager.shared.log("❌ Failed to generate token", color: .red)
+                    self.handleFailedAuth(error: .authenticationFailed(output))
                 }
             }
+        }
+    }
+    
+    private func handleSuccessfulAuth() {
+        let content = UNMutableNotificationContent()
+        content.title = "Authentication Successful"
+        content.body = "Token has been generated successfully"
+        content.sound = .default
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request)
+        
+        ConsoleManager.shared.log("✅ Token generated successfully", color: .green)
+        showAuthSheet = false
+        webView = nil
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.checkTokenStatus()
+        }
+    }
+    
+    private func handleFailedAuth(error: CloudUploaderError) {
+        ConsoleManager.shared.log("❌ \(error.localizedDescription)", color: .red)
+        showAuthSheet = false
+        webView = nil
+    }
+    
+    func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if granted {
+                print("Notification permission granted")
+            }
+        }
+    }
+    
+    func sendNotification(title: String, body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+        
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    private func setupWebView() {
+        let configuration = WKWebViewConfiguration()
+        let preferences = WKWebpagePreferences()
+        preferences.allowsContentJavaScript = true
+        configuration.defaultWebpagePreferences = preferences
+        
+        webView = WKWebView(frame: .zero, configuration: configuration)
+        webView?.navigationDelegate = self
+    }
+}
+
+extension CloudUploaderViewModel: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url,
+           url.host == "localhost" {
+            if let code = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems?.first(where: { $0.name == "code" })?.value {
+                decisionHandler(.cancel)
+                handleAuthCode(code)
+                return
+            }
+        }
+        decisionHandler(.allow)
+    }
+}
+
+enum CloudUploaderError: LocalizedError {
+    case authenticationFailed(String)
+    case tokenExpired
+    case networkError(String)
+    case fileSystemError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .authenticationFailed(let message):
+            return "Authentication failed: \(message)"
+        case .tokenExpired:
+            return "Token has expired. Please re-authenticate."
+        case .networkError(let message):
+            return "Network error: \(message)"
+        case .fileSystemError(let message):
+            return "File system error: \(message)"
         }
     }
 }

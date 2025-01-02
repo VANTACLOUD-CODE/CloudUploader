@@ -3,17 +3,15 @@ import SwiftUI
 
 struct ModernButtonStyle: ButtonStyle {
     var backgroundColor: Color
-    var foregroundColor: Color = .white
-
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding()
-            .frame(maxWidth: .infinity)
             .background(backgroundColor)
-            .foregroundColor(foregroundColor)
+            .foregroundColor(.white)
             .cornerRadius(10)
-            .shadow(color: backgroundColor.opacity(0.69), radius: 5, x: 0, y: 5)
+            .shadow(radius: 2)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
     }
 }

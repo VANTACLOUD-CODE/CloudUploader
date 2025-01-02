@@ -2,6 +2,13 @@ import SwiftUI
 import WebKit
 import CoreImage.CIFilterBuiltins
 
+extension Color {
+    static let backgroundPrimary = Color(NSColor.windowBackgroundColor)
+    static let backgroundSecondary = Color(NSColor.controlBackgroundColor)
+    static let textPrimary = Color(NSColor.labelColor)
+    static let textSecondary = Color(NSColor.secondaryLabelColor)
+}
+
 struct ContentView: View {
     @StateObject private var viewModel = CloudUploaderViewModel.shared
     @StateObject private var consoleManager = ConsoleManager.shared
@@ -11,165 +18,35 @@ struct ContentView: View {
     @State private var showLinkConfirmation = false
     @State private var selectedLinkURL: URL? = nil
     @State private var showQRCodeOverlay = false
+    @StateObject private var themeManager = ThemeManager.shared
+    @Environment(\.colorScheme) private var colorScheme
     
     @Environment(\.openURL) var openURL
     
-    // Move helper functions outside of body
-    private func statusRow(label: String, value: String, isError: Bool = false) -> some View {
-        HStack {
-            Text(label).font(.headline)
-            Spacer()
-            Text(value)
-                .foregroundColor(isError ? .red : .green)
-                .font(.subheadline)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                .shadow(radius: 2)
-        )
-    }
+    @State private var showQuitConfirmation = false
+    @StateObject private var quitHandler = QuitConfirmationHandler.shared
     
-    private func timeRemainingRow(label: String, value: String) -> some View {
-        HStack {
-            Text(label).font(.headline)
-            Spacer()
-            Text(value)
-                .foregroundColor(viewModel.remainingTimeColor)
-                .font(.subheadline)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                .shadow(radius: 2)
-        )
-    }
-    
-    private func albumStatusRow(label: String, value: String, isAlbumLink: Bool, action: (() -> Void)? = nil) -> some View {
-        HStack {
-            Text(label).font(.headline)
-            Spacer()
-            if let action = action {
-                Button(action: action) {
-                    Text(value)
-                        .foregroundColor(value == "N/A" || value == "Not Set" ? .red : .blue)
-                }
-                .buttonStyle(PlainButtonStyle())
-            } else {
-                Text(value)
-                    .foregroundColor(value == "N/A" || value == "Not Set" ? .red : .blue)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                .shadow(radius: 2)
-        )
-    }
+    @StateObject private var windowDelegate = AppWindowDelegate()
     
     var body: some View {
         ZStack {
             VStack(spacing: 10) {
-                // Brand Icon
-                HStack {
-                    Spacer()
-                    if let image = NSImage(contentsOfFile: "/Volumes/CloudUploader/CloudUploader/HeaderImage.png") {
-                        Image(nsImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                    } else {
-                        Text("Image not found").foregroundColor(.red)
-                    }
-                    Spacer()
-                }
-                .padding(.top, 5)
+                HeaderView()
                 
-                // Status Section Title
-                Text("⚙️ System Status")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 10)
-                
-                // Combined Status Row
-                HStack(spacing: 10) {
-                    // API Status
-                    HStack(spacing: 5) {
-                        Text("API Status:")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        Text(viewModel.apiStatus)
-                            .font(.headline)
-                            .foregroundColor(viewModel.apiStatus.contains("✅") ? .green : .red)
-                    }
-                    .padding(.vertical)
-                    .padding(.horizontal, 20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                            .shadow(radius: 2)
-                    )
-                    
-                    // Token Status
-                    statusRow(label: "Token Status:", value: viewModel.tokenStatus,
-                              isError: viewModel.tokenStatus.contains("❌"))
-                    
-                    // Time Remaining
-                    timeRemainingRow(label: "Time Remaining:", value: viewModel.timeRemaining)
-                }
-                .padding(.horizontal)
+                StatusSection(viewModel: viewModel)
                 
                 if viewModel.showAuthenticateButton {
-                    Button(action: {
-                        viewModel.authenticateInApp()
-                        viewModel.showAuthSheet = true
-                    }) {
-                        HStack {
-                            Image(systemName: "gear")
-                            Text(viewModel.showRefreshButton ? "Refresh Token" : "Generate Token")
-                                .font(.headline)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(ModernButtonStyle(backgroundColor: .blue))
-                    .padding(.horizontal)
-                    .padding(.top, 5)
-                    .padding(.bottom, 5)
+                    AuthButton(viewModel: viewModel)
                 }
                 
                 Divider().padding(.horizontal)
                 
-                // Album Status Info Title
-                Text("📂 Current Album")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 10)
-                
-                // Album Info
-                HStack(spacing: 20) {
-                    albumStatusRow(label: "Album Name:", value: viewModel.albumName, isAlbumLink: true) {
-                        if let url = URL(string: viewModel.shareableLink), viewModel.shareableLink != "N/A", viewModel.shareableLink != "Not available" {
-                            selectedLinkURL = url
-                            showLinkConfirmation = true
-                        }
-                    }
-                    
-                    albumStatusRow(label: "Link:", value: viewModel.shareableLink, isAlbumLink: false) {
-                        if let url = URL(string: viewModel.shareableLink), 
-                           viewModel.shareableLink != "N/A", 
-                           viewModel.shareableLink != "Not available" {
-                            selectedLinkURL = url
-                            viewModel.copyToClipboard(viewModel.shareableLink)
-                            ConsoleManager.shared.logLinkCopied(link: viewModel.shareableLink)
-                            ConsoleManager.shared.logQRCodeDisplayed()
-                            showQRCodeOverlay = true
-                        }
-                    }
-                }
-                .padding(.horizontal)
+                AlbumInfoSection(
+                    viewModel: viewModel,
+                    selectedLinkURL: $selectedLinkURL,
+                    showLinkConfirmation: $showLinkConfirmation,
+                    showQRCodeOverlay: $showQRCodeOverlay
+                )
                 
                 if viewModel.showAuthenticateButton {
                     Button(action: {
@@ -194,46 +71,25 @@ struct ContentView: View {
                 
                 Divider().padding(.horizontal)
                 
-                // Uploader Console Section
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("☁️ Uploader Console")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 2) {
-                                ForEach(consoleManager.consoleText.indices, id: \.self) { index in
-                                    Text(consoleManager.consoleText[index].text)
-                                        .font(.system(.body, design: .monospaced))
-                                        .foregroundColor(consoleManager.consoleText[index].color)
-                                        .textSelection(.enabled)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .onChange(of: consoleManager.consoleText.count) { _ in
-                                withAnimation {
-                                    proxy.scrollTo(consoleManager.consoleText.count - 1)
-                                }
-                            }
+                ConsoleView(consoleManager: consoleManager)
+                    .padding(.horizontal)
+                
+                Button(action: {
+                    viewModel.checkOrPromptAuth {
+                        if viewModel.albumName == "Not Set" || viewModel.albumName == "N/A" {
+                            ConsoleManager.shared.log("⚠️ Please select an album first", color: .orange)
+                            return
+                        }
+                        viewModel.isMonitoring.toggle()
+                        if viewModel.isMonitoring {
+                            ConsoleManager.shared.log("🔄 Monitoring started...", color: .green)
+                        } else {
+                            ConsoleManager.shared.log("⏹️ Monitoring stopped", color: .orange)
                         }
                     }
-                    .frame(maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
-                    .padding(10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                            .shadow(radius: 3)
-                    )
-                }
-                .padding(.horizontal)
-                
-                // Start/Stop Button beneath console
-                Button(action: {
-                    viewModel.toggleMonitoring()
                 }) {
                     HStack {
-                        Image(systemName: viewModel.isMonitoring ? "stop.circle" : "play.circle")
+                        Image(systemName: viewModel.isMonitoring ? "stop.circle.fill" : "play.circle.fill")
                         Text(viewModel.isMonitoring ? "Stop Monitoring" : "Start Monitoring")
                             .font(.headline)
                     }
@@ -241,74 +97,44 @@ struct ContentView: View {
                 }
                 .buttonStyle(ModernButtonStyle(backgroundColor: viewModel.isMonitoring ? .red : .green))
                 .padding(.horizontal)
-                .padding(.top, 10)
-                
-                Spacer()
+                .padding(.bottom)
             }
             .padding()
-            .frame(minWidth: 842, minHeight: 800)
-            .background(Color(NSColor.windowBackgroundColor).opacity(0.95))
-            .onAppear {
-                viewModel.initialize()
-            }
+            .frame(minWidth: 842, minHeight: 842)
+            .background(Color.backgroundPrimary.opacity(0.95))
+            .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
             
             // Overlays
-            .overlay(
-                Group {
-                    if viewModel.showAuthSheet {
-                        AuthenticationSheetView(viewModel: viewModel, isVisible: $viewModel.showAuthSheet)
-                            .transition(.opacity)
-                    }
-                    
-                    if viewModel.showAuthRequiredSheet {
-                        AuthRequiredView(viewModel: viewModel, isVisible: $viewModel.showAuthRequiredSheet)
-                            .transition(.opacity)
-                    }
-                    
-                    if showQRCodeOverlay, let url = selectedLinkURL {
-                        QRCodeOverlayView(url: url) {
-                            withAnimation {
-                                showQRCodeOverlay = false
-                            }
-                        }
-                        .transition(.opacity)
-                    }
-                    
-                    if viewModel.showQuitConfirmation {
-                        ConfirmationView(
-                            title: "🚨 Confirm Quit 🚨",
-                            message: "Are you sure you want to quit?\nAll processes will be stopped.",
-                            confirmText: "Quit",
-                            cancelText: "Cancel",
-                            confirmColor: .red,
-                            confirmIcon: "power",
-                            cancelIcon: "xmark.circle",
-                            onConfirm: {
-                                viewModel.confirmQuit()
-                                viewModel.showQuitConfirmation = false
-                            },
-                            onCancel: {
-                                viewModel.showQuitConfirmation = false
-                            }
-                        )
+            if viewModel.showAuthSheet {
+                AuthenticationSheetView(viewModel: viewModel, isVisible: $viewModel.showAuthSheet)
+                    .transition(.opacity)
+            }
+            
+            if viewModel.showAuthRequiredSheet {
+                AuthRequiredView(viewModel: viewModel, isVisible: $viewModel.showAuthRequiredSheet)
+                    .transition(.opacity)
+            }
+            
+            if showQRCodeOverlay, let url = selectedLinkURL {
+                QRCodeOverlayView(url: url) {
+                    withAnimation {
+                        showQRCodeOverlay = false
                     }
                 }
-            )
+            }
             
-            if showLinkConfirmation {
+            if showLinkConfirmation, let url = selectedLinkURL {
                 ConfirmationView(
-                    title: "🔗 Open Link 🔗",
-                    message: "Are you sure you want to open this link?",
-                    confirmText: "Open",
+                    title: "🔗 Open Album 🔗",
+                    message: "Would you like to open the album in your browser?",
+                    confirmText: "Open Link",
                     cancelText: "Cancel",
                     confirmColor: .blue,
-                    confirmIcon: "link",
+                    confirmIcon: "safari",
                     cancelIcon: "xmark.circle",
                     onConfirm: {
-                        if let url = selectedLinkURL {
-                            ConsoleManager.shared.logLinkOpened(link: url.absoluteString)
-                            openURL(url)
-                        }
+                        openURL(url)
+                        viewModel.handleLinkOpened(link: url.absoluteString)
                         showLinkConfirmation = false
                     },
                     onCancel: {
@@ -316,6 +142,93 @@ struct ContentView: View {
                     }
                 )
             }
+            
+            if quitHandler.showQuitConfirmation {
+                ConfirmationView(
+                    title: "🚨 Confirm Quit 🚨",
+                    message: "Are you sure you want to quit?\nAll processes will be stopped.",
+                    confirmText: "Quit",
+                    cancelText: "Cancel",
+                    confirmColor: .red,
+                    confirmIcon: "power",
+                    cancelIcon: "xmark.circle",
+                    onConfirm: {
+                        quitHandler.confirmQuit()
+                    },
+                    onCancel: {
+                        quitHandler.cancelQuit()
+                    }
+                )
+            }
+        }
+        .onChange(of: themeManager.isDarkMode) { oldValue, newValue in
+            withAnimation {
+                // Force window update
+                NSApp.windows.forEach { window in
+                    window.appearance = NSAppearance(named: themeManager.isDarkMode ? .darkAqua : .aqua)
+                }
+            }
+        }
+        .onAppear {
+            viewModel.initialize()
+            
+            // Set window delegate
+            if let window = NSApp.windows.first {
+                window.delegate = windowDelegate
+            }
+        }
+        .onExitCommand {
+            if viewModel.isMonitoring {
+                withAnimation {
+                    showQuitConfirmation = true
+                }
+            } else {
+                NSApplication.shared.terminate(nil)
+            }
         }
     }
 }
+
+#if DEBUG
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewDisplayName("Main Window - Empty")
+            .previewLayout(.fixed(width: 869, height: 842))
+            .preferredColorScheme(.light)
+            .background(
+                Image("DesktopBackground")
+                    .resizable()
+                    .edgesIgnoringSafeArea(.all)
+            )
+
+        ContentView()
+            .previewDisplayName("Auth Required")
+            .previewLayout(.fixed(width: 842, height: 800))
+            .preferredColorScheme(.light)
+            .onAppear {
+                CloudUploaderViewModel.shared.showAuthRequiredSheet = true
+            }
+
+        ContentView()
+            .previewDisplayName("Active Monitoring")
+            .previewLayout(.fixed(width: 842, height: 800))
+            .preferredColorScheme(.light)
+            .onAppear {
+                CloudUploaderViewModel.shared.isMonitoring = true
+                ConsoleManager.shared.log("🔄 Monitoring started...", color: .green)
+                ConsoleManager.shared.log("📸 Found new image: photo001.jpg", color: .blue)
+            }
+
+        ContentView()
+            .previewDisplayName("QR Code Overlay")
+            .previewLayout(.fixed(width: 842, height: 800))
+            .preferredColorScheme(.light)
+            .onAppear {
+                let viewModel = CloudUploaderViewModel.shared
+                viewModel.shareableLink = "https://photos.google.com/share/example"
+                viewModel.albumName = "Test Album"
+            }
+    }
+}
+#endif
