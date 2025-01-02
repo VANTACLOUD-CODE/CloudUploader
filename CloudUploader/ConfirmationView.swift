@@ -14,7 +14,7 @@ struct ConfirmationView: View {
     var body: some View {
         ZStack {
             // Semi-transparent background to dim the underlying content
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.69)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
                     onCancel() // Dismiss the overlay on background tap

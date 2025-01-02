@@ -7,7 +7,7 @@ struct AuthRequiredView: View {
     var body: some View {
         ZStack {
             // Semi-transparent background to dim the underlying content
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.69)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
                     isVisible = false // Dismiss only the overlay
@@ -15,11 +15,11 @@ struct AuthRequiredView: View {
 
             // Dialog content
             VStack(spacing: 20) {
-                Text("🔐 Authentication Required 🔐")
+                Text("🔐 Token Required 🔐")
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("You must authenticate before continuing.\nPlease log in or cancel to return.")
+                Text("You must generate a token before continuing.")
                     .multilineTextAlignment(.center)
                     .font(.body)
                     .foregroundColor(.secondary)
@@ -40,11 +40,12 @@ struct AuthRequiredView: View {
                     // Authenticate Button
                     Button(action: {
                         viewModel.authenticateInApp()
-                        isVisible = false // Dismiss only the overlay
+                        viewModel.showAuthSheet = true
+                        isVisible = false
                     }) {
                         HStack {
-                            Image(systemName: "lock.shield")
-                            Text("Authenticate")
+                            Image(systemName: "gear")
+                            Text("Generate")
                                 .font(.headline)
                         }
                     }

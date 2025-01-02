@@ -1,52 +1,48 @@
 import SwiftUI
 
 struct AlbumSelectionView: View {
-    let albums: [[String: String]]
-    var onSelect: (Dictionary<String, String>) -> Void
-    var onCancel: () -> Void
-
+    let albums: [String]
+    let onCreate: (String) -> Void
+    let onCancel: () -> Void
+    
+    @State private var newAlbumName: String = ""
+    
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Select an Album")
-                .font(.headline)
-                .padding()
-
-            ScrollView {
-                VStack(spacing: 10) {
+        NavigationView {
+            List {
+                Section(header: Text("Existing Albums")) {
                     ForEach(albums, id: \.self) { album in
-                        HStack {
-                            Text(album["name"] ?? "Unknown Album")
-                                .font(.subheadline)
-                            Spacer()
-                            Button(action: {
-                                onSelect(album)
-                            }) {
-                                Text("Select")
-                                    .frame(minWidth: 50)
-                                    .padding(5)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(5)
-                                    .shadow(radius: 2)
+                        Text(album)
+                            .onTapGesture {
+                                // Handle album selection if needed
                             }
-                            .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                
+                Section(header: Text("New Album")) {
+                    HStack {
+                        TextField("Enter album name", text: $newAlbumName)
+                        Button(action: {
+                            guard !newAlbumName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                            onCreate(newAlbumName)
+                            newAlbumName = ""
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.green)
                         }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
+                        .disabled(newAlbumName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
             }
-            .padding()
-
-            Button("Cancel") {
-                onCancel()
+            .listStyle(SidebarListStyle())
+            .navigationTitle("Select Album")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                }
             }
-            .buttonStyle(PlainButtonStyle())
-            .foregroundColor(.red)
-            .padding()
         }
-        .padding()
-        .frame(width: 400, height: 300)
     }
 }

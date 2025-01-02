@@ -12,7 +12,7 @@ struct ModernButtonStyle: ButtonStyle {
             .background(backgroundColor)
             .foregroundColor(foregroundColor)
             .cornerRadius(10)
-            .shadow(color: backgroundColor.opacity(0.4), radius: 5, x: 0, y: 5)
+            .shadow(color: backgroundColor.opacity(0.69), radius: 5, x: 0, y: 5)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }

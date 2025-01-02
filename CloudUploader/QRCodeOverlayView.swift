@@ -9,7 +9,7 @@ struct QRCodeOverlayView: View {
     var body: some View {
         ZStack {
             // Dim background to cover the entire screen
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.69)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
                     if isQRExpanded {
@@ -49,8 +49,8 @@ struct QRCodeOverlayView: View {
                         .scaledToFit()
                         .cornerRadius(10) // Rounded corners for the QR code
                         .frame(
-                            width: isQRExpanded ? min(800, NSScreen.main?.frame.width ?? 800) : 269,
-                            height: isQRExpanded ? min(800, NSScreen.main?.frame.width ?? 800) : 269
+                            width: isQRExpanded ? 600 : 269,
+                            height: isQRExpanded ? 600 : 269
                         ) // Dynamically sized QR code with screen constraints
                         .onTapGesture {
                             withAnimation(.spring()) {
@@ -78,8 +78,8 @@ struct QRCodeOverlayView: View {
             }
             .padding(isQRExpanded ? 0 : 30) // Remove padding when expanded
             .frame(
-                width: isQRExpanded ? NSScreen.main?.frame.width ?? 800 : 400,
-                height: isQRExpanded ? NSScreen.main?.frame.height ?? 600 : 500
+                maxWidth: isQRExpanded ? .infinity : 400,
+                maxHeight: isQRExpanded ? .infinity : 500
             ) // Larger overlay size with screen restrictions
             .background(isQRExpanded ? Color.black : Color(NSColor.windowBackgroundColor))
             .cornerRadius(isQRExpanded ? 0 : 20) // No rounded corners when expanded

@@ -8,10 +8,10 @@ struct AuthenticationSheetView: View {
     var body: some View {
         ZStack {
             // Semi-transparent background to dim the rest of the app and enable click-to-dismiss
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.69)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
-                    // Dismiss the overlay when tapping outside
+                    viewModel.dismissAuthSheet()
                     isVisible = false
                 }
 
@@ -19,7 +19,7 @@ struct AuthenticationSheetView: View {
             ZStack(alignment: .topTrailing) {
                 if let webView = viewModel.webView {
                     WebViewWrapper(webView: webView)
-                        .frame(maxWidth: 550, maxHeight: 750) // Define max size for the WebView
+                        .frame(maxWidth: 650, maxHeight: 650) // Define max size for the WebView
                         .cornerRadius(10) // Rounded corners for the WebView
                         .shadow(radius: 10)
                 } else {
@@ -30,7 +30,7 @@ struct AuthenticationSheetView: View {
                         Text("🔐 Loading Authentication...")
                             .foregroundColor(.secondary)
                     }
-                    .frame(width: 550, height: 750) // Reasonable size for placeholder
+                    .frame(width: 650, height: 650) // Reasonable size for placeholder
                     .background(Color(NSColor.windowBackgroundColor))
                     .cornerRadius(10)
                     .shadow(radius: 10)
@@ -38,7 +38,7 @@ struct AuthenticationSheetView: View {
 
                 // Close button overlaid on top of WebView
                 Button(action: {
-                    // Dismiss the overlay
+                    viewModel.dismissAuthSheet()
                     isVisible = false
                 }) {
                     Image(systemName: "xmark.circle.fill")
