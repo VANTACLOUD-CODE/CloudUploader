@@ -50,7 +50,8 @@ class TokenManager: ObservableObject {
     private func updateCountdown() {
         guard let expiryDate = self.expiryDate else { return }
         
-        let remainingSeconds = Int(ceil(expiryDate.timeIntervalSinceNow))
+        let remainingSeconds = Int(expiryDate.timeIntervalSinceNow)
+        
         if remainingSeconds > 0 {
             let mins = remainingSeconds / 60
             let secs = remainingSeconds % 60
@@ -60,7 +61,11 @@ class TokenManager: ObservableObject {
                 self.remainingMinutes = mins
                 self.remainingSeconds = secs
                 
-                if mins >= 15 {
+                // Auto refresh when 15 minutes or less remaining
+                if mins <= 15 && self.showRefreshButton {
+                    ConsoleManager.shared.log("🔄 Auto-refreshing token (15 minutes remaining)...", color: .blue)
+                    self.refreshToken()
+                } else if mins >= 15 {
                     self.remainingTimeColor = .green
                 } else if mins >= 5 {
                     self.remainingTimeColor = .orange
