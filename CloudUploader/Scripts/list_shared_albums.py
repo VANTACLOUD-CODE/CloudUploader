@@ -2,19 +2,20 @@
 import os
 import json
 import sys
-import warnings
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
-from googleapiclient.discovery import build_from_document
-
-# Suppress all warnings
-warnings.filterwarnings("ignore", category=Warning)
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 def get_albums():
+    output_file = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/albums_cache.json"
+    token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
+    
     try:
-        token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
-        discovery_url = "https://photoslibrary.googleapis.com/$discovery/rest?version=v1"
-        
+        if not os.path.exists(token_path):
+            save_result({"error": "Token file not found"}, output_file)
+            return
+
         with open(token_path, 'r') as token_file:
             token_data = json.load(token_file)
         
@@ -27,39 +28,58 @@ def get_albums():
             scopes=['https://www.googleapis.com/auth/photoslibrary',
                    'https://www.googleapis.com/auth/photoslibrary.sharing']
         )
-        
-        if not creds.valid:
-            if creds.refresh_token:
-                creds.refresh(Request())
-                token_data['token'] = creds.token
-                with open(token_path, 'w') as token_file:
-                    json.dump(token_data, token_file)
-            else:
-                print(json.dumps({"error": "Invalid credentials - please re-authenticate"}), flush=True)
-                return
-        
-        service = build_from_document(discovery_url, credentials=creds)
+
+        if not creds.valid and creds.refresh_token:
+            creds.refresh(Request())
+            token_data['token'] = creds.token
+            with open(token_path, 'w') as token_file:
+                json.dump(token_data, token_file)
+
+        service = build('photoslibrary', 'v1', credentials=creds, static_discovery=False)
         
         try:
-            shared_response = service.sharedAlbums().list(pageSize=50).execute()
-            shared_albums = shared_response.get('sharedAlbums', [])
+            print("Debug - Fetching albums...", file=sys.stderr)
+            all_albums = []
+            page_token = None
+            
+            while True:
+                results = service.sharedAlbums().list(
+                    pageSize=50,
+                    pageToken=page_token
+                ).execute()
+                
+                if 'sharedAlbums' in results:
+                    print(f"Debug - Found {len(results['sharedAlbums'])} albums in current page", file=sys.stderr)
+                    all_albums.extend(results['sharedAlbums'])
+                
+                page_token = results.get('nextPageToken')
+                if not page_token:
+                    break
+            
+            print(f"Debug - Total albums found: {len(all_albums)}", file=sys.stderr)
             
             album_info = []
-            for album in shared_albums:
-                if 'shareInfo' in album and 'shareableUrl' in album['shareInfo']:
-                    album_info.append({
-                        "title": album.get('title', ''),
-                        "id": album.get('id', ''),
-                        "shareableUrl": album['shareInfo']['shareableUrl']
-                    })
+            for album in all_albums:
+                album_info.append({
+                    "title": album.get('title', ''),
+                    "id": album.get('id', ''),
+                    "shareableUrl": album.get('shareInfo', {}).get('shareableUrl', ''),
+                    "isWriteable": album.get('shareInfo', {}).get('isWriteable', False),
+                    "totalMediaItems": album.get('mediaItemsCount', '0')
+                })
             
-            print(json.dumps({"albums": album_info}), flush=True)
+            save_result({"albums": album_info}, output_file)
             
-        except Exception as e:
-            print(json.dumps({"error": str(e)}), flush=True)
+        except HttpError as error:
+            save_result({"error": f"API Error: {str(error)}"}, output_file)
             
     except Exception as e:
-        print(json.dumps({"error": f"Script Error: {str(e)}"}), flush=True)
+        save_result({"error": f"Script Error: {str(e)}"}, output_file)
 
-if __name__ == '__main__':
+def save_result(data, output_file):
+    with open(output_file, 'w') as f:
+        json.dump(data, f, indent=2)
+        print(f"Debug - Saved results to {output_file}", file=sys.stderr)
+
+if __name__ == "__main__":
     get_albums()

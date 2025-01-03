@@ -65,7 +65,7 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     @Published var showAuthSheet: Bool = false
     @Published var showAlbumInput: Bool = false
     @Published var showAlbumSelection: Bool = false
-    @Published var availableAlbums: [String] = []
+    @Published var availableAlbums: [AlbumInfo] = []
     @Published var webView: WKWebView?
     @Published var showQuitConfirmation: Bool = false
     @Published var showSuccessOverlay: Bool = false
@@ -185,9 +185,14 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
         runScript(scriptPath: listSharedAlbumsScriptPath, arguments: []) { [weak self] output in
             guard let self = self else { return }
             
-            print("Debug - Raw output: \(output)")
+            // Clean the output by finding the JSON content
+            let cleanedOutput = output.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cleanedOutput.isEmpty else {
+                ConsoleManager.shared.log("❌ Empty response from script", color: .red)
+                return
+            }
             
-            guard let data = output.data(using: .utf8) else {
+            guard let data = cleanedOutput.data(using: .utf8) else {
                 ConsoleManager.shared.log("❌ Failed to convert output to data", color: .red)
                 return
             }
@@ -196,13 +201,15 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
                 let response = try JSONDecoder().decode(AlbumResponse.self, from: data)
                 
                 DispatchQueue.main.async {
+                    self.isLoadingAlbums = false
+                    
                     if let error = response.error {
                         ConsoleManager.shared.log("❌ Error fetching albums: \(error)", color: .red)
                         return
                     }
                     
                     if let albums = response.albums {
-                        self.availableAlbums = albums.map { $0.title }
+                        self.availableAlbums = albums
                         if albums.isEmpty {
                             ConsoleManager.shared.log("ℹ️ No albums found", color: .orange)
                         } else {
@@ -693,71 +700,65 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     }
     
     func fetchAvailableAlbums() async {
-        ConsoleManager.shared.log("📋 Fetching available albums...", color: .blue)
+        ConsoleManager.shared.log("📋 Fetching available albums...", color: .yellow)
         isLoadingAlbums = true
         
-        runScript(scriptPath: listSharedAlbumsScriptPath, arguments: []) { [weak self] output in
+        let albumsCachePath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/albums_cache.json"
+        
+        runScript(scriptPath: listSharedAlbumsScriptPath, arguments: []) { [weak self] _ in
             guard let self = self else { return }
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.isLoadingAlbums = false
                 
-                // Extract JSON from the output by finding the first { and last }
-                if let jsonStart = output.firstIndex(of: "{"),
-                   let jsonEnd = output.lastIndex(of: "}") {
-                    let jsonString = String(output[jsonStart...jsonEnd])
-                    
-                    if let data = jsonString.data(using: .utf8),
-                       let response = try? JSONDecoder().decode(AlbumResponse.self, from: data) {
-                        if let error = response.error {
-                            ConsoleManager.shared.log("❌ Error fetching albums: \(error)", color: .red)
-                            self.availableAlbums = []
-                            return
-                        }
-                        
-                        self.availableAlbums = response.albums?.map { $0.title } ?? []
-                        if self.availableAlbums.isEmpty {
-                            ConsoleManager.shared.log("ℹ️ No shared albums found", color: .orange)
-                        } else {
-                            ConsoleManager.shared.log("✅ Found \(self.availableAlbums.count) shared albums", color: .green)
-                        }
-                    } else {
-                        ConsoleManager.shared.log("❌ Failed to parse albums JSON", color: .red)
-                        self.availableAlbums = []
-                    }
-                } else {
-                    ConsoleManager.shared.log("❌ Invalid response format", color: .red)
+                guard FileManager.default.fileExists(atPath: albumsCachePath),
+                      let jsonData = try? Data(contentsOf: URL(fileURLWithPath: albumsCachePath)),
+                      let response = try? JSONDecoder().decode(AlbumResponse.self, from: jsonData) else {
+                    ConsoleManager.shared.log("❌ Failed to read albums cache", color: .red)
                     self.availableAlbums = []
+                    return
+                }
+                
+                if let error = response.error {
+                    ConsoleManager.shared.log("❌ Error fetching albums: \(error)", color: .red)
+                    self.availableAlbums = []
+                    return
+                }
+                
+                if let albums = response.albums {
+                    self.availableAlbums = albums
+                    if albums.isEmpty {
+                        ConsoleManager.shared.log("ℹ️ No albums found", color: .orange)
+                    } else {
+                        ConsoleManager.shared.log("✅ Found \(albums.count) available albums", color: .green)
+                    }
                 }
             }
         }
     }
     
     func selectAlbum(_ albumName: String) {
-        runScript(scriptPath: listSharedAlbumsScriptPath, arguments: []) { [weak self] output in
-            guard let self = self,
-                  let data = output.data(using: .utf8),
-                  let response = try? JSONDecoder().decode(AlbumResponse.self, from: data),
-                  let selectedAlbum = response.albums?.first(where: { $0.title == albumName }) else {
-                ConsoleManager.shared.log("❌ Failed to find selected album", color: .red)
-                return
-            }
+        guard let selectedAlbum = availableAlbums.first(where: { $0.title == albumName }) else {
+            ConsoleManager.shared.log("❌ Failed to find selected album", color: .red)
+            return
+        }
+        
+        do {
+            // Write album ID to file
+            try selectedAlbum.id.write(toFile: self.albumIdPath, atomically: true, encoding: .utf8)
             
-            do {
-                // Write album ID to file
-                try selectedAlbum.id.write(toFile: self.albumIdPath, atomically: true, encoding: .utf8)
-                
-                // Write album info (title and URL) to file
-                let albumInfo = "\(selectedAlbum.title)\n\(selectedAlbum.shareableUrl)"
-                try albumInfo.write(toFile: self.albumInfoPath, atomically: true, encoding: .utf8)
-                
-                DispatchQueue.main.async {
-                    self.fetchAlbumInfo()
-                    ConsoleManager.shared.log("✅ Album selected: \(albumName)", color: .green)
-                }
-            } catch {
-                ConsoleManager.shared.log("❌ Failed to save album information: \(error.localizedDescription)", color: .red)
+            // Write album info (title and URL) to file
+            let albumInfo = "\(selectedAlbum.title)\n\(selectedAlbum.shareableUrl)"
+            try albumInfo.write(toFile: self.albumInfoPath, atomically: true, encoding: .utf8)
+            
+            DispatchQueue.main.async {
+                self.albumName = selectedAlbum.title
+                self.shareableLink = selectedAlbum.shareableUrl
+                self.fetchAlbumInfo()
+                ConsoleManager.shared.log("✅ Album selected: \(albumName)", color: .green)
             }
+        } catch {
+            ConsoleManager.shared.log("❌ Failed to save album information: \(error.localizedDescription)", color: .red)
         }
     }
     
@@ -831,10 +832,24 @@ struct SuccessOverlayView: View {
     }
 }
 
-struct AlbumInfo: Codable {
+struct AlbumInfo: Codable, Identifiable, Hashable {
     let title: String
     let id: String
     let shareableUrl: String
+    let isWriteable: Bool
+    let totalMediaItems: String
+    
+    // Computed property to satisfy Identifiable
+    var identifier: String { id }
+    
+    // Implement Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: AlbumInfo, rhs: AlbumInfo) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 struct AlbumResponse: Codable {

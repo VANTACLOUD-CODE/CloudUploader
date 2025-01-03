@@ -55,12 +55,12 @@ struct AlbumSelectionView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.availableAlbums, id: \.self, selection: $selectedAlbumName) { albumName in
-                        Text(albumName)
-                            .foregroundColor(.primary)
-                            .padding(.vertical, 4)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+                    List(viewModel.availableAlbums, id: \.id, selection: $selectedAlbumName) { album in
+                        Text(album.title)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .tag(album.title)
                     }
                     .listStyle(.plain)
                 }
@@ -107,7 +107,6 @@ struct AlbumSelectionView: View {
             }
         }
         .task {
-            // Fetch albums when view appears
             await viewModel.fetchAvailableAlbums()
         }
     }
