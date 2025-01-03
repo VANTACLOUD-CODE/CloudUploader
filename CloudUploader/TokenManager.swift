@@ -16,11 +16,6 @@ class TokenManager: ObservableObject {
     @Published var accessToken: String?
 
     // Paths or Keychain references
-    private let keychain = KeychainHelper.standard
-
-    private let refreshTokenService = "com.CloudUploader.refresh"
-    private let refreshTokenAccount = "UserRefreshToken"
-
     private let tokenFilePath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
 
     // Add timer property
@@ -110,16 +105,25 @@ class TokenManager: ObservableObject {
 
     // MARK: - Save / Load Refresh Token
     func saveRefreshToken(_ refreshToken: String) {
-        if let data = refreshToken.data(using: .utf8) {
-            keychain.save(data, service: refreshTokenService, account: refreshTokenAccount)
+        guard let tokenData = try? Data(contentsOf: URL(fileURLWithPath: tokenFilePath)),
+              var tokenJson = try? JSONSerialization.jsonObject(with: tokenData) as? [String: Any] else {
+            return
+        }
+        
+        tokenJson["refresh_token"] = refreshToken
+        
+        if let updatedData = try? JSONSerialization.data(withJSONObject: tokenJson) {
+            try? updatedData.write(to: URL(fileURLWithPath: tokenFilePath))
         }
     }
 
     func loadRefreshToken() -> String? {
-        guard let data = keychain.read(service: refreshTokenService, account: refreshTokenAccount) else {
+        guard let tokenData = try? Data(contentsOf: URL(fileURLWithPath: tokenFilePath)),
+              let tokenJson = try? JSONSerialization.jsonObject(with: tokenData) as? [String: Any],
+              let refreshToken = tokenJson["refresh_token"] as? String else {
             return nil
         }
-        return String(data: data, encoding: .utf8)
+        return refreshToken
     }
 
     // MARK: - Refresh Logic
