@@ -57,9 +57,9 @@ struct ConfirmationView: View {
                     .buttonStyle(ModernButtonStyle(backgroundColor: confirmColor))
                 }
             }
-            .padding(30)
-            .frame(maxWidth: 400) // Constrain dialog width
-            .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
+            .padding(20)
+            .frame(maxWidth: 269) // Constrain dialog width
+            .background(Color(NSColor.controlBackgroundColor).opacity(0.95))
             .cornerRadius(20)
             .shadow(radius: 20)
         }

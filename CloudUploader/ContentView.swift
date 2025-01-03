@@ -1,6 +1,7 @@
 import SwiftUI
 import WebKit
 import CoreImage.CIFilterBuiltins
+import AppKit
 
 extension Color {
     static let backgroundPrimary = Color(NSColor.windowBackgroundColor)
@@ -9,7 +10,18 @@ extension Color {
     static let textSecondary = Color(NSColor.secondaryLabelColor)
 }
 
+@MainActor
 struct ContentView: View {
+    // Focus state and enum for keyboard navigation
+    @FocusState private var focusedButton: ButtonFocus?
+    
+    private enum ButtonFocus {
+        case auth
+        case selectAlbum
+        case startMonitoring
+    }
+    
+    // Existing state objects and properties
     @StateObject private var viewModel = CloudUploaderViewModel.shared
     @StateObject private var consoleManager = ConsoleManager.shared
     @State private var copiedMessage: String? = nil
@@ -27,6 +39,7 @@ struct ContentView: View {
     @StateObject private var quitHandler = QuitConfirmationHandler.shared
     
     @StateObject private var windowDelegate = AppWindowDelegate()
+    @StateObject private var tokenManager = TokenManager()
     
     var body: some View {
         ZStack {
@@ -37,6 +50,7 @@ struct ContentView: View {
                 
                 // Auth Button - Always visible
                 AuthButton(viewModel: viewModel)
+                    .focused($focusedButton, equals: .auth)
                 
                 Divider().padding(.horizontal)
                 
@@ -49,6 +63,7 @@ struct ContentView: View {
                 
                 // Select Album Button - Always visible
                 SelectAlbumButton(viewModel: viewModel)
+                    .focused($focusedButton, equals: .selectAlbum)
                 
                 Divider().padding(.horizontal)
                 
@@ -56,17 +71,26 @@ struct ContentView: View {
                     .padding(.horizontal)
                 
                 Button(action: {
-                    viewModel.checkOrPromptAlbum {
-                        if viewModel.albumName == "Not Set" || viewModel.albumName == "N/A" {
-                            ConsoleManager.shared.log("⚠️ Please select an album first", color: .orange)
-                            return
-                        }
-                        viewModel.isMonitoring.toggle()
-                        if viewModel.isMonitoring {
-                            ConsoleManager.shared.log("🔄 Monitoring started...", color: .green)
-                        } else {
-                            ConsoleManager.shared.log("⏹️ Monitoring stopped", color: .orange)
-                        }
+                    // First check token validity
+                    if !tokenManager.showRefreshButton { // Token is invalid or expired
+                        viewModel.showAuthRequiredSheet = true
+                        ConsoleManager.shared.log("⚠️ Authentication required before monitoring", color: .orange)
+                        return
+                    }
+                    
+                    // Then check album status
+                    if viewModel.albumName == "Not Set" || viewModel.albumName == "N/A" {
+                        viewModel.showAlbumRequiredSheet = true
+                        ConsoleManager.shared.log("⚠️ Please select an album first", color: .orange)
+                        return
+                    }
+                    
+                    // If both checks pass, toggle monitoring
+                    viewModel.isMonitoring.toggle()
+                    if viewModel.isMonitoring {
+                        ConsoleManager.shared.log("🔄 Monitoring started...", color: .green)
+                    } else {
+                        ConsoleManager.shared.log("⏹️ Monitoring stopped", color: .orange)
                     }
                 }) {
                     HStack {
@@ -79,13 +103,38 @@ struct ContentView: View {
                 .buttonStyle(ModernButtonStyle(backgroundColor: viewModel.isMonitoring ? .red : .green))
                 .padding(.horizontal)
                 .padding(.bottom)
+                .focused($focusedButton, equals: .startMonitoring)
+                .keyboardShortcut(.return, modifiers: [])
             }
             .padding()
-            .frame(minWidth: 869 , minHeight: 842)
+            .frame(minWidth: 869, minHeight: 842)
             .background(Color.backgroundPrimary.opacity(0.95))
             .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
-            .sheet(isPresented: $viewModel.showAlbumSelection) {
-                AlbumSelectionView(viewModel: viewModel)
+            .onKeyPress(.tab) {
+                if NSEvent.modifierFlags.contains(.shift) {
+                    switch focusedButton {
+                    case .auth:
+                        focusedButton = .startMonitoring
+                    case .selectAlbum:
+                        focusedButton = .auth
+                    case .startMonitoring:
+                        focusedButton = .selectAlbum
+                    case nil:
+                        focusedButton = .startMonitoring
+                    }
+                } else {
+                    switch focusedButton {
+                    case .auth:
+                        focusedButton = .selectAlbum
+                    case .selectAlbum:
+                        focusedButton = .startMonitoring
+                    case .startMonitoring:
+                        focusedButton = .auth
+                    case nil:
+                        focusedButton = .auth
+                    }
+                }
+                return .handled
             }
             
             // Overlays
@@ -152,7 +201,6 @@ struct ContentView: View {
         }
         .onChange(of: themeManager.isDarkMode) { oldValue, newValue in
             withAnimation {
-                // Force window update
                 NSApp.windows.forEach { window in
                     window.appearance = NSAppearance(named: themeManager.isDarkMode ? .darkAqua : .aqua)
                 }
@@ -160,8 +208,6 @@ struct ContentView: View {
         }
         .onAppear {
             viewModel.initialize()
-            
-            // Set window delegate
             if let window = NSApp.windows.first {
                 window.delegate = windowDelegate
             }
@@ -190,33 +236,13 @@ struct ContentView_Previews: PreviewProvider {
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
             )
-
+        
         ContentView()
             .previewDisplayName("Auth Required")
             .previewLayout(.fixed(width: 842, height: 800))
             .preferredColorScheme(.light)
             .onAppear {
                 CloudUploaderViewModel.shared.showAuthRequiredSheet = true
-            }
-
-        ContentView()
-            .previewDisplayName("Active Monitoring")
-            .previewLayout(.fixed(width: 842, height: 800))
-            .preferredColorScheme(.light)
-            .onAppear {
-                CloudUploaderViewModel.shared.isMonitoring = true
-                ConsoleManager.shared.log("🔄 Monitoring started...", color: .green)
-                ConsoleManager.shared.log("📸 Found new image: photo001.jpg", color: .blue)
-            }
-
-        ContentView()
-            .previewDisplayName("QR Code Overlay")
-            .previewLayout(.fixed(width: 842, height: 800))
-            .preferredColorScheme(.light)
-            .onAppear {
-                let viewModel = CloudUploaderViewModel.shared
-                viewModel.shareableLink = "https://photos.google.com/share/example"
-                viewModel.albumName = "Test Album"
             }
     }
 }

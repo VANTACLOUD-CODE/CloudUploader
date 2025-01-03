@@ -27,20 +27,25 @@ class TokenManager: ObservableObject {
     // MARK: - Init
     init() {
         checkTokenStatus()
-        DispatchQueue.main.async { [weak self] in
-            self?.startCountdownTimer()
-            // Force an immediate update
-            self?.updateCountdown()
+        if FileManager.default.fileExists(atPath: tokenFilePath) {
+            DispatchQueue.main.async { [weak self] in
+                self?.startCountdownTimer()
+                self?.updateCountdown()
+            }
         }
     }
 
     deinit {
+        stopCountdownTimer()
+    }
+
+    private func stopCountdownTimer() {
         countdownTimer?.invalidate()
         countdownTimer = nil
     }
 
     private func startCountdownTimer() {
-        countdownTimer?.invalidate()
+        stopCountdownTimer()
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateCountdown()
         }
@@ -48,7 +53,10 @@ class TokenManager: ObservableObject {
     }
 
     private func updateCountdown() {
-        guard let expiryDate = self.expiryDate else { return }
+        guard let expiryDate = self.expiryDate else { 
+            stopCountdownTimer()
+            return 
+        }
         
         let remainingSeconds = Int(expiryDate.timeIntervalSinceNow)
         
@@ -56,7 +64,7 @@ class TokenManager: ObservableObject {
             let mins = remainingSeconds / 60
             let secs = remainingSeconds % 60
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [self] in
                 self.countdownDisplay = String(format: "%02d:%02d ⌛️", mins, secs)
                 self.remainingMinutes = mins
                 self.remainingSeconds = secs
@@ -74,10 +82,11 @@ class TokenManager: ObservableObject {
                 }
             }
         } else {
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [self] in
                 self.countdownDisplay = "--:-- ⌛️"
                 self.remainingTimeColor = .red
-                self.checkTokenStatus()
+                self.stopCountdownTimer()
+                self.updateTokenStatus(valid: false, remainingTime: "0")
             }
         }
     }
@@ -196,9 +205,9 @@ class TokenManager: ObservableObject {
             let secs = totalSeconds % 60
             timeRemaining = String(format: "%02d:%02d ⌛️", mins, secs)
             
-            if mins >= 15 {
+            if mins >= 30 {
                 remainingTimeColor = .green
-            } else if mins >= 5 {
+            } else if mins >= 15 {
                 remainingTimeColor = .orange
             } else {
                 remainingTimeColor = .red

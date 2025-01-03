@@ -6,7 +6,7 @@ struct ModernButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding()
+            .padding(10)
             .background(backgroundColor)
             .foregroundColor(.white)
             .cornerRadius(10)

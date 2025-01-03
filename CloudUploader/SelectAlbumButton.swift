@@ -5,10 +5,11 @@ struct SelectAlbumButton: View {
     
     var body: some View {
         Button(action: {
-            viewModel.checkOrPromptAuth {
-                Task {
-                    await viewModel.runSelectAlbumScript()
-                }
+            if viewModel.showRefreshButton { // Token is valid
+                viewModel.showAlbumSheet = true
+            } else {
+                viewModel.showAuthRequiredSheet = true
+                ConsoleManager.shared.log("⚠️ Authentication required before selecting album", color: .orange)
             }
         }) {
             HStack {
@@ -22,5 +23,8 @@ struct SelectAlbumButton: View {
         .padding(.horizontal)
         .padding(.top, 5)
         .padding(.bottom, 5)
+        .sheet(isPresented: $viewModel.showAlbumSheet) {
+            AlbumSelectionView(viewModel: viewModel)
+        }
     }
 }

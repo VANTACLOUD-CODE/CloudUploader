@@ -44,7 +44,7 @@ struct AuthRequiredView: View {
                         isVisible = false
                     }) {
                         HStack {
-                            Image(systemName: "gear")
+                            Image(systemName: "key.fill")
                             Text("Generate")
                                 .font(.headline)
                         }
@@ -52,8 +52,8 @@ struct AuthRequiredView: View {
                     .buttonStyle(ModernButtonStyle(backgroundColor: .blue))
                 }
             }
-            .padding(30)
-            .frame(maxWidth: 400) // Constrain dialog width
+            .padding(20)
+            .frame(maxWidth: 342) // Constrain dialog width
             .background(Color(NSColor.controlBackgroundColor).opacity(0.95))
             .cornerRadius(20)
             .shadow(radius: 20)

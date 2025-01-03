@@ -73,9 +73,9 @@ struct QRCodeOverlayView: View {
                         .buttonStyle(ModernButtonStyle(backgroundColor: .gray))
                         .padding(.top, 10)
                     }
-                    .padding(30)
+                    .padding(20)
                     .frame(maxWidth: 400, maxHeight: 500)
-                    .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                    .background(Color(NSColor.controlBackgroundColor).opacity(0.95))
                     .cornerRadius(20)
                     .shadow(radius: 20)
                 }

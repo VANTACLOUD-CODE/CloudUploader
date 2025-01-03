@@ -19,7 +19,7 @@ struct AuthenticationSheetView: View {
             ZStack(alignment: .topTrailing) {
                 if let webView = viewModel.webView {
                     WebViewWrapper(webView: webView)
-                        .frame(maxWidth: 650, maxHeight: 650) // Define max size for the WebView
+                        .frame(maxWidth: 669, maxHeight: 775) // Define max size for the WebView
                         .cornerRadius(10) // Rounded corners for the WebView
                         .shadow(radius: 10)
                 } else {

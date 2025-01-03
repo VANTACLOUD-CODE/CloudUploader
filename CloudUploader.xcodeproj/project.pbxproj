@@ -60,56 +60,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		79EE00382D1B667800EDED5D /* Exceptions for "CloudUploader" folder in "CloudUploader" target */ = {
+		C6E68D252D28099000CD5BF9 /* Exceptions for "CloudUploader" folder in "CloudUploader" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AlbumInfoSectionView.swift,
-				AlbumInputView.swift,
-				AlbumRequiredView.swift,
-				AlbumSelectionView.swift,
-				AppDelegate.swift,
-				AppWindowDelegate.swift,
-				Assets.xcassets,
-				AuthButton.swift,
-				AuthenticationSheetView.swift,
-				AuthRequiredView.swift,
-				CloudUploaderApp.swift,
-				CloudUploaderViewModel.swift,
-				ConfirmationView.swift,
-				ConsoleManager.swift,
-				ConsoleView.swift,
-				ContentView.swift,
-				FolderMonitor.swift,
-				HeaderView.swift,
-				KeychainHelper.swift,
-				LocalServer.swift,
-				MainContentArea.swift,
-				ModernButtonStyle.swift,
-				QRCodeOverlayView.swift,
-				QuitConfirmationHandler.swift,
-				Resources/album_id.txt,
-				Resources/album_info.txt,
-				Resources/CO_ExportStats.txt,
-				Resources/credentials.json,
-				Scripts/authenticate.py,
-				Scripts/create_album.py,
-				Scripts/list_shared_albums.py,
-				Scripts/refresh_token.py,
-				Scripts/requirements.txt,
-				Scripts/test_api.py,
-				Scripts/token_exchange.py,
-				Scripts/upload_script.py,
-				Scripts/verify_album.py,
-				SelectAlbumButton.swift,
-				StatusRowView.swift,
-				StatusSection.swift,
-				StyledButtonStyle.swift,
-				ThemeManager.swift,
-				ThemeSwitcher.swift,
-				TimeRemainingView.swift,
-				TokenManager.swift,
-				VerifyAlbumResponse.swift,
-				WebViewWrapper.swift,
+				Info.plist,
 			);
 			target = 79EEFF882D1B643E00EDED5D /* CloudUploader */;
 		};
@@ -119,7 +73,7 @@
 		7961D3072D1B3A8500AB8E83 /* CloudUploader */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				79EE00382D1B667800EDED5D /* Exceptions for "CloudUploader" folder in "CloudUploader" target */,
+				C6E68D252D28099000CD5BF9 /* Exceptions for "CloudUploader" folder in "CloudUploader" target */,
 			);
 			path = CloudUploader;
 			sourceTree = "<group>";
@@ -221,6 +175,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7961D3072D1B3A8500AB8E83 /* CloudUploader */,
 			);
 			name = CloudUploader;
 			packageProductDependencies = (
@@ -417,7 +374,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"CloudUploader/Preview Content\"";
 				DEVELOPMENT_TEAM = 89GQ9B4ZT7;
-				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudUploader/Info.plist;
@@ -448,7 +404,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"CloudUploader/Preview Content\"";
 				DEVELOPMENT_TEAM = 89GQ9B4ZT7;
-				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudUploader/Info.plist;
