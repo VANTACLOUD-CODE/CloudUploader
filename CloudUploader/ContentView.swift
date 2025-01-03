@@ -56,7 +56,7 @@ struct ContentView: View {
                     .padding(.horizontal)
                 
                 Button(action: {
-                    viewModel.checkOrPromptAuth {
+                    viewModel.checkOrPromptAlbum {
                         if viewModel.albumName == "Not Set" || viewModel.albumName == "N/A" {
                             ConsoleManager.shared.log("⚠️ Please select an album first", color: .orange)
                             return
@@ -84,6 +84,9 @@ struct ContentView: View {
             .frame(minWidth: 869 , minHeight: 842)
             .background(Color.backgroundPrimary.opacity(0.95))
             .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+            .sheet(isPresented: $viewModel.showAlbumSelection) {
+                AlbumSelectionView(viewModel: viewModel)
+            }
             
             // Overlays
             if viewModel.showAuthSheet {
@@ -140,6 +143,11 @@ struct ContentView: View {
                         quitHandler.cancelQuit()
                     }
                 )
+            }
+            
+            if viewModel.showAlbumRequiredSheet {
+                AlbumRequiredView(viewModel: viewModel, isVisible: $viewModel.showAlbumRequiredSheet)
+                    .transition(.opacity)
             }
         }
         .onChange(of: themeManager.isDarkMode) { oldValue, newValue in

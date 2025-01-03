@@ -65,6 +65,7 @@
 			membershipExceptions = (
 				AlbumInfoSectionView.swift,
 				AlbumInputView.swift,
+				AlbumRequiredView.swift,
 				AlbumSelectionView.swift,
 				AppDelegate.swift,
 				AppWindowDelegate.swift,
@@ -98,6 +99,7 @@
 				Scripts/test_api.py,
 				Scripts/token_exchange.py,
 				Scripts/upload_script.py,
+				Scripts/verify_album.py,
 				SelectAlbumButton.swift,
 				StatusRowView.swift,
 				StatusSection.swift,
@@ -106,6 +108,7 @@
 				ThemeSwitcher.swift,
 				TimeRemainingView.swift,
 				TokenManager.swift,
+				VerifyAlbumResponse.swift,
 				WebViewWrapper.swift,
 			);
 			target = 79EEFF882D1B643E00EDED5D /* CloudUploader */;

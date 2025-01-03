@@ -15,6 +15,8 @@ token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token
 SCOPES = [
     'https://www.googleapis.com/auth/photoslibrary',
     'https://www.googleapis.com/auth/photoslibrary.sharing',
+    'https://www.googleapis.com/auth/photoslibrary.edit',
+    'https://www.googleapis.com/auth/photoslibrary.readonly',
     'https://www.googleapis.com/auth/photoslibrary.appendonly'
 ]
 
@@ -34,15 +36,15 @@ def authenticate():
             client_config = json.load(f)['installed']
 
         token_data = {
-            'access_token': creds.token,
+            'token': creds.token,
             'refresh_token': creds.refresh_token,
             'expiry': expiry_time.isoformat(),
             'token_type': 'Bearer',
             'client_id': client_config['client_id'],
-            'client_secret': client_config['client_secret']
+            'client_secret': client_config['client_secret'],
+            'scopes': SCOPES
         }
 
-        # Ensure token directory exists
         os.makedirs(os.path.dirname(token_path), exist_ok=True)
         
         with open(token_path, 'w') as f:

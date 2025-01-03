@@ -12,7 +12,7 @@ struct SelectAlbumButton: View {
             }
         }) {
             HStack {
-                Image(systemName: "folder.badge.plus")
+                Image(systemName: "list.bullet")
                 Text("Select Album")
                     .font(.headline)
             }

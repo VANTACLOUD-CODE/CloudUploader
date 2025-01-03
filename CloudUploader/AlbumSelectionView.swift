@@ -1,48 +1,114 @@
 import SwiftUI
 
 struct AlbumSelectionView: View {
-    let albums: [String]
-    let onCreate: (String) -> Void
-    let onCancel: () -> Void
-    
-    @State private var newAlbumName: String = ""
+    @ObservedObject var viewModel: CloudUploaderViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var showCreateSheet = false
+    @State private var selectedAlbumName: String?
     
     var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("Existing Albums")) {
-                    ForEach(albums, id: \.self) { album in
-                        Text(album)
-                            .onTapGesture {
-                                // Handle album selection if needed
-                            }
+        ZStack {
+            // Background dismiss
+            Color.black.opacity(0.3)
+                .edgesIgnoringSafeArea(.all)
+                .onTapGesture {
+                    dismiss()
+                }
+            
+            VStack(spacing: 0) {
+                // Header with close button
+                HStack {
+                    Spacer()
+                    Text("Album Selection")
+                        .font(.headline)
+                    Spacer()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .font(.title2)
                     }
+                    .buttonStyle(.plain)
+                }
+                .padding()
+                
+                // Album list
+                if viewModel.isLoadingAlbums {
+                    VStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Loading Albums...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if viewModel.availableAlbums.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 50))
+                            .foregroundColor(.secondary)
+                        Text("No Shared Albums Found")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("Create a new album to get started")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(viewModel.availableAlbums, id: \.self, selection: $selectedAlbumName) { albumName in
+                        Text(albumName)
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 4)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                    .listStyle(.plain)
                 }
                 
-                Section(header: Text("New Album")) {
-                    HStack {
-                        TextField("Enter album name", text: $newAlbumName)
-                        Button(action: {
-                            guard !newAlbumName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                            onCreate(newAlbumName)
-                            newAlbumName = ""
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.green)
+                // Bottom buttons
+                VStack(spacing: 12) {
+                    Button(action: {
+                        if let albumName = selectedAlbumName {
+                            viewModel.selectAlbum(albumName)
+                            dismiss()
                         }
-                        .disabled(newAlbumName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }) {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Select Album")
+                                .font(.headline)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                }
-            }
-            .listStyle(SidebarListStyle())
-            .navigationTitle("Select Album")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        onCancel()
+                    .buttonStyle(ModernButtonStyle(backgroundColor: .purple))
+                    .disabled(selectedAlbumName == nil)
+                    
+                    Button(action: { showCreateSheet = true }) {
+                        HStack {
+                            Image(systemName: "folder.badge.plus.fill")
+                            Text("Create New Album")
+                                .font(.headline)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(ModernButtonStyle(backgroundColor: .teal))
                 }
+                .padding()
             }
+            .frame(width: 600, height: 500)
+            .background(Color(NSColor.windowBackgroundColor))
+            .cornerRadius(12)
+        }
+        .sheet(isPresented: $showCreateSheet) {
+            AlbumInputView { newAlbumName in
+                viewModel.runNewShootScript(albumName: newAlbumName)
+                showCreateSheet = false
+                dismiss()
+            }
+        }
+        .task {
+            // Fetch albums when view appears
+            await viewModel.fetchAvailableAlbums()
         }
     }
 }
