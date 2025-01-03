@@ -37,7 +37,7 @@ def exchange_code(auth_code):
             token_info = json.loads(response.read().decode())
             
             # Calculate expiry time (3600 seconds from now)
-            expiry_time = datetime.now(timezone.utc) + timedelta(seconds=token_info.get('expires_in', 3600))
+            expiry_time = datetime.now(timezone.utc) + timedelta(seconds=token_info.get('expires_in', 900))
             
             # Ensure token directory exists
             os.makedirs(os.path.dirname(token_path), exist_ok=True)

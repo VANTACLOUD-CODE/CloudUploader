@@ -2,12 +2,18 @@
 import os
 import json
 import sys
+import warnings
 from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build_from_document
+
+# Suppress all warnings
+warnings.filterwarnings("ignore", category=Warning)
 
 def get_albums():
     try:
         token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
+        discovery_url = "https://photoslibrary.googleapis.com/$discovery/rest?version=v1"
         
         with open(token_path, 'r') as token_file:
             token_data = json.load(token_file)
@@ -17,39 +23,43 @@ def get_albums():
             refresh_token=token_data.get('refresh_token'),
             token_uri="https://oauth2.googleapis.com/token",
             client_id=token_data.get('client_id'),
-            client_secret=token_data.get('client_secret')
+            client_secret=token_data.get('client_secret'),
+            scopes=['https://www.googleapis.com/auth/photoslibrary',
+                   'https://www.googleapis.com/auth/photoslibrary.sharing']
         )
         
-        service = build('photoslibrary', 'v1', credentials=creds, static_discovery=False)
+        if not creds.valid:
+            if creds.refresh_token:
+                creds.refresh(Request())
+                token_data['token'] = creds.token
+                with open(token_path, 'w') as token_file:
+                    json.dump(token_data, token_file)
+            else:
+                print(json.dumps({"error": "Invalid credentials - please re-authenticate"}), flush=True)
+                return
+        
+        service = build_from_document(discovery_url, credentials=creds)
         
         try:
-            # Get all albums first
-            response = service.albums().list(pageSize=50).execute()
-            all_albums = response.get('albums', [])
-            
-            # Get shared albums
             shared_response = service.sharedAlbums().list(pageSize=50).execute()
             shared_albums = shared_response.get('sharedAlbums', [])
             
             album_info = []
-            
-            # Process all albums that have shareInfo
-            for album in all_albums + shared_albums:
+            for album in shared_albums:
                 if 'shareInfo' in album and 'shareableUrl' in album['shareInfo']:
-                    if not any(a['id'] == album['id'] for a in album_info):
-                        album_info.append({
-                            "title": album.get('title', ''),
-                            "id": album.get('id', ''),
-                            "shareableUrl": album['shareInfo']['shareableUrl']
-                        })
+                    album_info.append({
+                        "title": album.get('title', ''),
+                        "id": album.get('id', ''),
+                        "shareableUrl": album['shareInfo']['shareableUrl']
+                    })
             
-            print(json.dumps({"albums": album_info, "count": len(album_info)}))
+            print(json.dumps({"albums": album_info}), flush=True)
             
         except Exception as e:
-            print(json.dumps({"error": str(e)}))
+            print(json.dumps({"error": str(e)}), flush=True)
             
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
+        print(json.dumps({"error": f"Script Error: {str(e)}"}), flush=True)
 
 if __name__ == '__main__':
     get_albums()

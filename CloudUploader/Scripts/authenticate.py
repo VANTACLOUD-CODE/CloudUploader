@@ -2,60 +2,55 @@
 import os
 import json
 import sys
-from datetime import datetime, timezone, timedelta
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
 
-# Define paths
-script_dir = os.path.dirname(os.path.abspath(__file__))
-credentials_path = os.path.abspath(os.path.join(script_dir, "../Resources/credentials.json"))
-token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
-
-# Define the required scopes for Google Photos API
+# Complete set of scopes
 SCOPES = [
     'https://www.googleapis.com/auth/photoslibrary',
     'https://www.googleapis.com/auth/photoslibrary.sharing',
-    'https://www.googleapis.com/auth/photoslibrary.edit',
     'https://www.googleapis.com/auth/photoslibrary.readonly',
-    'https://www.googleapis.com/auth/photoslibrary.appendonly'
+    'https://www.googleapis.com/auth/photoslibrary.appendonly',
+    'https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata',
+    'https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata'
 ]
 
 def authenticate():
     try:
-        if not os.path.exists(credentials_path):
-            raise FileNotFoundError(f"Credentials file not found at {credentials_path}")
+        # Get the path to the client secrets file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        client_secrets_path = os.path.join(os.path.dirname(script_dir), "Resources", "client_secrets.json")
+        token_path = os.path.join(os.path.dirname(script_dir), "Resources", "token.json")
 
-        flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
-        creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+        # Create the flow using the client secrets file
+        flow = InstalledAppFlow.from_client_secrets_file(
+            client_secrets_path,
+            scopes=SCOPES
+        )
 
-        # Calculate expiry time
-        expiry_time = datetime.now(timezone.utc) + timedelta(seconds=3600)
-        
-        # Get client details from credentials file
-        with open(credentials_path, 'r') as f:
-            client_config = json.load(f)['installed']
+        # Run the OAuth flow
+        creds = flow.run_local_server(port=0)
 
+        # Save the credentials with all scopes
         token_data = {
             'token': creds.token,
             'refresh_token': creds.refresh_token,
-            'expiry': expiry_time.isoformat(),
-            'token_type': 'Bearer',
-            'client_id': client_config['client_id'],
-            'client_secret': client_config['client_secret'],
-            'scopes': SCOPES
+            'token_uri': creds.token_uri,
+            'client_id': creds.client_id,
+            'client_secret': creds.client_secret,
+            'scopes': SCOPES,  # Save all requested scopes explicitly
+            'expiry': creds.expiry.isoformat() if creds.expiry else None,
+            'token_type': 'Bearer'
         }
 
-        os.makedirs(os.path.dirname(token_path), exist_ok=True)
-        
-        with open(token_path, 'w') as f:
-            json.dump(token_data, f)
+        with open(token_path, 'w') as token_file:
+            json.dump(token_data, token_file)
 
-        print(json.dumps({"status": "success", "token": creds.token}))
-        return 0
+        print(json.dumps({"status": "success"}))
+        sys.stdout.flush()
 
     except Exception as e:
-        print(json.dumps({"status": "error", "error": str(e)}))
-        return 1
+        print(json.dumps({"error": str(e)}))
+        sys.stdout.flush()
 
 if __name__ == '__main__':
-    sys.exit(authenticate())
+    authenticate()
