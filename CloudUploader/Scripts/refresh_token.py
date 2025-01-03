@@ -6,13 +6,6 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
 
-# Must match authenticate.py
-SCOPES = [
-    'https://www.googleapis.com/auth/photoslibrary',
-    'https://www.googleapis.com/auth/photoslibrary.sharing',
-    'https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata'
-]
-
 def refresh_token():
     try:
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -34,13 +27,12 @@ def refresh_token():
         if not all([refresh_token_val, client_id, client_secret]):
             raise Exception("Missing required credentials")
 
-        # Prepare request data with scopes
+        # Prepare request data - note removal of scope parameter
         data = urllib.parse.urlencode({
             "client_id": client_id,
             "client_secret": client_secret,
             "refresh_token": refresh_token_val,
-            "grant_type": "refresh_token",
-            "scope": " ".join(SCOPES)
+            "grant_type": "refresh_token"
         }).encode('utf-8')
 
         # Make request
@@ -56,10 +48,14 @@ def refresh_token():
             # Update token data while preserving refresh_token
             token_data.update({
                 "token": new_token_data["access_token"],
-                "scopes": SCOPES,
+                "access_token": new_token_data["access_token"],
                 "expiry": (datetime.now(timezone.utc) + 
                           timedelta(seconds=new_token_data["expires_in"])).isoformat()
             })
+            
+            # Preserve the refresh token if not in response
+            if "refresh_token" in new_token_data:
+                token_data["refresh_token"] = new_token_data["refresh_token"]
             
             with open(token_path, "w", encoding="utf-8") as token_file:
                 json.dump(token_data, token_file)
@@ -68,7 +64,8 @@ def refresh_token():
             sys.stdout.flush()
 
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
+        error_msg = str(e)
+        print(json.dumps({"status": "error", "message": error_msg}))
         sys.stdout.flush()
 
 if __name__ == '__main__':

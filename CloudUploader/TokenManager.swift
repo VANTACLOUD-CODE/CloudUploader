@@ -144,23 +144,25 @@ class TokenManager: ObservableObject {
     func refreshToken() {
         ConsoleManager.shared.log("🔄 Refreshing token...", color: .blue)
         
-        guard let refreshToken = loadRefreshToken() else {
-            ConsoleManager.shared.log("❌ No refresh token found", color: .red)
-            return
-        }
-        
-        // Run the refresh token script
         runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/refresh_token.py", 
-                  arguments: [refreshToken]) { [weak self] output in
+                  arguments: []) { [weak self] output in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
-                if output.contains("success") {
-                    ConsoleManager.shared.log("✅ Token refreshed successfully", color: .green)
-                    self.checkTokenStatus() // Update the UI with new token info
+                if let data = output.data(using: .utf8),
+                   let response = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    
+                    if response["status"] as? String == "success" {
+                        ConsoleManager.shared.log("✅ Token refreshed successfully", color: .green)
+                        self.checkTokenStatus() // Update the UI with new token info
+                    } else {
+                        let errorMsg = response["message"] as? String ?? "Unknown error"
+                        ConsoleManager.shared.log("❌ Token refresh failed: \(errorMsg)", color: .red)
+                        // Reset states if refresh failed
+                        self.updateTokenStatus(valid: false, remainingTime: "0")
+                    }
                 } else {
-                    ConsoleManager.shared.log("❌ Token refresh failed: \(output)", color: .red)
-                    // Reset states if refresh failed
+                    ConsoleManager.shared.log("❌ Invalid response from refresh script", color: .red)
                     self.updateTokenStatus(valid: false, remainingTime: "0")
                 }
             }
