@@ -18,7 +18,8 @@ struct StatusSection: View {
                     Spacer()
                     Text(viewModel.apiStatus)
                         .font(.headline)
-                        .foregroundColor(viewModel.apiStatus.contains("✅") ? .green : .red)
+                        .foregroundColor(viewModel.apiStatus.contains("🔄") ? .orange : 
+                                        viewModel.apiStatus.contains("✅") ? .green : .red)
                 }
                 .padding(.vertical)
                 .padding(.horizontal, 20)
@@ -36,7 +37,8 @@ struct StatusSection: View {
                     Spacer()
                     Text(viewModel.tokenStatus)
                         .font(.headline)
-                        .foregroundColor(viewModel.tokenStatus.contains("❌") ? .red : .green)
+                        .foregroundColor(viewModel.tokenStatus.contains("🔄") ? .orange : 
+                                        viewModel.tokenStatus.contains("✅") ? .green : .red)
                 }
                 .padding(.vertical)
                 .padding(.horizontal, 20)
@@ -47,34 +49,9 @@ struct StatusSection: View {
                 )
                 .frame(maxWidth: .infinity)
                 
-                HStack {
-                    Text("Time Remaining:")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Spacer()
-                    Text(viewModel.timeRemaining)
-                        .font(.headline)
-                        .foregroundColor(timeColor(for: viewModel.timeRemaining))
-                }
-                .padding(.vertical)
-                .padding(.horizontal, 20)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                        .shadow(radius: 2)
-                )
-                .frame(maxWidth: .infinity)
+                TimeRemainingView(tokenManager: viewModel.tokenManager)
             }
             .padding(.horizontal)
         }
-    }
-    
-    private func timeColor(for value: String) -> Color {
-        if value.contains("expired") {
-            return .red
-        } else if value.contains("< 1 hour") {
-            return .orange
-        }
-        return .green
     }
 }

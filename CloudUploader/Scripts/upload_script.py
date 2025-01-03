@@ -12,7 +12,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 app_bundle_path = os.path.abspath(os.path.join(script_dir, "../Resources"))
 
 # Paths
-token_path = os.path.join(app_bundle_path, "token.json")
+token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
 album_id_file = os.path.join(app_bundle_path, "album_id.txt")
 discovery_url = "https://photoslibrary.googleapis.com/$discovery/rest?version=v1"
 upload_url = "https://photoslibrary.googleapis.com/v1/uploads"

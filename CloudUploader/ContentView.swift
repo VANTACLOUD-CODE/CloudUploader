@@ -35,9 +35,8 @@ struct ContentView: View {
                 
                 StatusSection(viewModel: viewModel)
                 
-                if viewModel.showAuthenticateButton {
-                    AuthButton(viewModel: viewModel)
-                }
+                // Auth Button - Always visible
+                AuthButton(viewModel: viewModel)
                 
                 Divider().padding(.horizontal)
                 
@@ -48,26 +47,8 @@ struct ContentView: View {
                     showQRCodeOverlay: $showQRCodeOverlay
                 )
                 
-                if viewModel.showAuthenticateButton {
-                    Button(action: {
-                        viewModel.checkOrPromptAuth {
-                            Task {
-                                await viewModel.runSelectAlbumScript()
-                            }
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "folder.badge.plus")
-                            Text("Select Album")
-                                .font(.headline)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(ModernButtonStyle(backgroundColor: .purple))
-                    .padding(.horizontal)
-                    .padding(.top, 5)
-                    .padding(.bottom, 5)
-                }
+                // Select Album Button - Always visible
+                SelectAlbumButton(viewModel: viewModel)
                 
                 Divider().padding(.horizontal)
                 
@@ -100,7 +81,7 @@ struct ContentView: View {
                 .padding(.bottom)
             }
             .padding()
-            .frame(minWidth: 842, minHeight: 842)
+            .frame(minWidth: 869 , minHeight: 842)
             .background(Color.backgroundPrimary.opacity(0.95))
             .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
             

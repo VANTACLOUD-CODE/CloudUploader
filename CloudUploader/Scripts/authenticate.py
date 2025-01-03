@@ -2,18 +2,14 @@
 import os
 import json
 import sys
+from datetime import datetime, timezone, timedelta
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 
-# Define the Application Support path
-app_support_dir = os.path.expanduser("~/Library/Application Support/CloudUploader")
-
-# Ensure Application Support directory exists
-os.makedirs(app_support_dir, exist_ok=True)
-
-# Paths
-credentials_path = os.path.join(app_support_dir, "credentials.json")
-token_path = os.path.join(app_support_dir, "token.json")
+# Define paths
+script_dir = os.path.dirname(os.path.abspath(__file__))
+credentials_path = os.path.abspath(os.path.join(script_dir, "../Resources/credentials.json"))
+token_path = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
 
 # Define the required scopes for Google Photos API
 SCOPES = [
@@ -23,36 +19,41 @@ SCOPES = [
 ]
 
 def authenticate():
-    """Authenticate and save the token."""
     try:
-        # Ensure credentials file exists
         if not os.path.exists(credentials_path):
-            raise FileNotFoundError(f"Credentials file not found at {credentials_path}. Please ensure it exists.")
+            raise FileNotFoundError(f"Credentials file not found at {credentials_path}")
 
-        # Set up the OAuth flow
         flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
-
-        # Use a local server to handle the authentication flow automatically
         creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
 
-        # Save the token after successful authentication
-        with open(token_path, 'w') as token_file:
-            token_file.write(creds.to_json())
+        # Calculate expiry time
+        expiry_time = datetime.now(timezone.utc) + timedelta(seconds=3600)
+        
+        # Get client details from credentials file
+        with open(credentials_path, 'r') as f:
+            client_config = json.load(f)['installed']
 
-        # Output JSON for Swift to parse
-        output = {
-            "status": "Authentication successful",
-            "token": creds.token
+        token_data = {
+            'access_token': creds.token,
+            'refresh_token': creds.refresh_token,
+            'expiry': expiry_time.isoformat(),
+            'token_type': 'Bearer',
+            'client_id': client_config['client_id'],
+            'client_secret': client_config['client_secret']
         }
-        print(json.dumps(output))
+
+        # Ensure token directory exists
+        os.makedirs(os.path.dirname(token_path), exist_ok=True)
+        
+        with open(token_path, 'w') as f:
+            json.dump(token_data, f)
+
+        print(json.dumps({"status": "success", "token": creds.token}))
+        return 0
 
     except Exception as e:
-        error_output = {
-            "status": "Authentication failed",
-            "error": str(e)
-        }
-        print(json.dumps(error_output))
-        sys.exit(1)
+        print(json.dumps({"status": "error", "error": str(e)}))
+        return 1
 
 if __name__ == '__main__':
-    authenticate()
+    sys.exit(authenticate())

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.clouduploader</string>
+    <string>com.vantacloud.CloudUploader</string>
     <key>CFBundleName</key>
     <string>Cloud Uploader</string>
     <key>CFBundleShortVersionString</key>

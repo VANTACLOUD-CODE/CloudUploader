@@ -13,10 +13,34 @@ struct StatusMessage: Identifiable {
 class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     static let shared = CloudUploaderViewModel()
     
+    // MARK: - Published Properties
+    @Published var apiStatus: String = "🔄 Checking..."
+    @Published var tokenStatus: String = "🔄 Checking..."
+    @Published var timeRemaining: String = "🔄 Checking..."
+    
+    // Add TokenManager instance with proper initialization
+    let tokenManager: TokenManager
+    
+    override init() {
+        self.tokenManager = TokenManager()
+        super.init()
+        
+        // Bind to tokenManager button states
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.objectWillChange.send()
+                self?.timeRemaining = self?.tokenManager.countdownDisplay ?? "--:-- ⌛️"
+                self?.showAuthenticateButton = self?.tokenManager.showAuthenticateButton ?? true
+                self?.showRefreshButton = self?.tokenManager.showRefreshButton ?? false
+            }
+        }
+        
+        Task {
+            await checkTokenStatus()
+        }
+    }
+    
     // MARK: - Published UI States
-    @Published var apiStatus: String = "Checking..."
-    @Published var tokenStatus: String = "Checking..."
-    @Published var timeRemaining: String = "Checking..."
     @Published var albumName: String = "Not Set"
     @Published var shareableLink: String = "N/A"
     @Published var captureOneStatus: String = "Not processing"
@@ -39,53 +63,55 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     @Published var availableAlbums: [[String: String]] = []
     @Published var webView: WKWebView?
     @Published var showQuitConfirmation: Bool = false
+    @Published var showSuccessOverlay: Bool = false
+    @Published var showNotificationBanner: Bool = false
+    @Published var notificationMessage: String = ""
+    @Published var notificationColor: Color = .green
+    @Published var showAlbumSheet: Bool = false
     
     // MARK: - Private Properties
-    private let credentialsFilePath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/credentials.json"
     private let tokenFilePath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/token.json"
+    private let credentialsFilePath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/credentials.json"
     private let albumInfoPath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/album_info.txt"
     private let albumIdPath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Resources/album_id.txt"
     private let createAlbumScriptPath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/create_album.py"
     private let listSharedAlbumsScriptPath = "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/list_shared_albums.py"
     
-    // MARK: - Initialization
-    private override init() {
-        super.init()
-    }
-    
     // MARK: - Public Methods
     func initialize() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
+        Task {
             // Initial startup
             ConsoleManager.shared.systemStartup()
             
             // Check API first
-            self.checkAPIStatus()
+            checkAPIStatus()
             
             // Slight delay to ensure proper ordering
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                // Then check token
-                self.checkTokenStatus()
-                
-                // Finally check album info
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.fetchAlbumInfo()
-                    
-                    // Set final status
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        ConsoleManager.shared.logFinalStatus(hasValidToken: self.tokenStatus.contains("✅"))
-                    }
-                }
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            
+            // Then check token
+            await checkTokenStatus()
+            
+            // Finally check album info
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            fetchAlbumInfo()
+            
+            // Set final status
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            await MainActor.run {
+                ConsoleManager.shared.logFinalStatus(hasValidToken: self.tokenStatus.contains("✅"))
             }
         }
     }
     
     func checkOrPromptAuth(completion: @escaping () -> Void) {
-        if tokenStatus.contains("✅") {
+        if tokenManager.tokenStatus.contains("✅") {
+            showAuthenticateButton = false
+            showRefreshButton = true
             completion()
         } else {
+            showAuthenticateButton = true
+            showRefreshButton = false
             showAuthRequiredSheet = true
         }
     }
@@ -214,60 +240,51 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     // MARK: - Private Methods
     private func checkAPIStatus() {
         ConsoleManager.shared.log("🔍 Checking API reachability...", color: Color.orange.opacity(0.9))
-        DispatchQueue.global().async {
-            sleep(1) // Simulated API check
-            DispatchQueue.main.async {
-                self.apiStatus = "✅ Reachable"
-                ConsoleManager.shared.logAPIStatus(isReachable: true)
-            }
-        }
-    }
-    
-    private func checkTokenStatus() {
-        ConsoleManager.shared.log("🔑 Checking token status...", color: Color.orange.opacity(0.9))
         
-        // Set initial state to checking
-        tokenStatus = "❌ Checking..."
-        timeRemaining = "Checking..."
-        
-        Task {
-            guard FileManager.default.fileExists(atPath: tokenFilePath) else {
-                await MainActor.run {
-                    updateTokenStatus(valid: false, remainingTime: "Token not found")
-                }
-                return
-            }
+        // First check if we can reach Google's servers
+        let url = URL(string: "https://www.google.com")!
+        let task = URLSession.shared.dataTask(with: url) { [weak self] _, response, error in
+            guard let self = self else { return }
             
-            do {
-                let data = try Data(contentsOf: URL(fileURLWithPath: tokenFilePath))
-                if let details = await parseToken(data: data) {
-                    await MainActor.run {
-                        let isValid = details.remainingTime > 0
-                        updateTokenStatus(valid: isValid, remainingTime: "\(details.remainingTime) minutes")
-                    }
+            DispatchQueue.main.async {
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                    self.apiStatus = "✅ Reachable"
+                    ConsoleManager.shared.logAPIStatus(isReachable: true)
+                    
+                    // Now run the test_api.py script for detailed API check
+                    self.runDetailedAPICheck()
                 } else {
-                    await MainActor.run {
-                        updateTokenStatus(valid: false, remainingTime: "Invalid token")
-                    }
+                    self.apiStatus = "❌ Not Reachable"
+                    ConsoleManager.shared.logAPIStatus(isReachable: false)
                 }
-            } catch {
-                await MainActor.run {
-                    updateTokenStatus(valid: false, remainingTime: "Failed to read token")
+            }
+        }
+        task.resume()
+    }
+    
+    private func runDetailedAPICheck() {
+        runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/test_api.py", arguments: []) { output in
+            if let jsonData = output.data(using: .utf8),
+               let response = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+               let status = response["status"] as? String {
+                
+                DispatchQueue.main.async {
+                    if status == "API reachable" {
+                        ConsoleManager.shared.log("✅ Google Photos API is accessible", color: .green)
+                    } else if let error = response["error"] as? String {
+                        ConsoleManager.shared.log("⚠️ API Status Note: \(error)", color: .orange)
+                    }
                 }
             }
         }
     }
     
-    private func updateTokenStatus(valid: Bool, remainingTime: String) {
-        tokenStatus = valid ? "✅ Valid" : "❌ Expired"
-        timeRemaining = valid ? remainingTime : "⌛️"
-        showAuthenticateButton = !valid
-        showRefreshButton = valid
-        
-        if !valid {
-            ConsoleManager.shared.log("Token Status: ❌ Expired or invalid", color: .red)
-        } else {
-            ConsoleManager.shared.log("Token Status: ✅ Valid (\(remainingTime) remaining)", color: .green)
+    private func checkTokenStatus() async {
+        ConsoleManager.shared.log("🔑 Checking token status...", color: Color.orange.opacity(0.9))
+        await MainActor.run {
+            tokenManager.checkTokenStatus()
+            tokenStatus = tokenManager.tokenStatus
+            timeRemaining = tokenManager.timeRemaining
         }
     }
     
@@ -314,14 +331,17 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
             return nil
         }
         
-        let base = "https://accounts.google.com/o/oauth2/v2/auth"
-        let scope = "https://www.googleapis.com/auth/photoslibrary"
-        let redirectUri = "http://localhost"
-        let loginHint = "sirak@sirakstudios.com"
-        let extras = "access_type=offline&include_granted_scopes=true&redirect_uri=\(redirectUri)&response_type=code&login_hint=\(loginHint)"
-        let urlString = "\(base)?client_id=\(clientId)&scope=\(scope)&\(extras)"
+        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")
+        components?.queryItems = [
+            URLQueryItem(name: "client_id", value: clientId),
+            URLQueryItem(name: "redirect_uri", value: "http://localhost"),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: "https://www.googleapis.com/auth/photoslibrary"),
+            URLQueryItem(name: "access_type", value: "offline"),
+            URLQueryItem(name: "prompt", value: "consent")
+        ]
         
-        return URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+        return components?.url
     }
     
     private func loadCredentials() -> [String: Any]? {
@@ -337,14 +357,36 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
             if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                let expiryString = json["expiry"] as? String {
                 let isoFormatter = ISO8601DateFormatter()
-                isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds, .withTimeZone]
+                
                 if let expiryDate = isoFormatter.date(from: expiryString) {
-                    let remainingTime = Int(expiryDate.timeIntervalSinceNow / 60)
-                    return (remainingTime, expiryDate)
+                    let now = Date()
+                    let remainingSeconds = expiryDate.timeIntervalSinceNow
+                    
+                    // Convert to minutes, ensuring we round up for partial minutes
+                    let remainingMinutes = Int(ceil(remainingSeconds / 60))
+                    
+                    // Format the display string
+                    let displayTime = if remainingMinutes <= 0 {
+                        "Expired"
+                    } else if remainingMinutes >= 60 {
+                        "60 minutes"
+                    } else {
+                        "\(remainingMinutes) minutes"
+                    }
+                    
+                    // Debug logging
+                    ConsoleManager.shared.log("📅 Token expiry: \(expiryString)", color: .gray)
+                    ConsoleManager.shared.log("⏱️ Remaining time: \(displayTime)", color: .green)
+                    ConsoleManager.shared.log("🔍 Debug: Token expiry = \(expiryDate)", color: .gray)
+                    ConsoleManager.shared.log("🔍 Debug: Current time = \(now)", color: .gray)
+                    ConsoleManager.shared.log("🔍 Debug: Raw remaining minutes = \(remainingMinutes)", color: .gray)
+                    
+                    return (remainingMinutes, expiryDate)
                 }
             }
         } catch {
-            print("❌ parseToken error: \(error.localizedDescription)")
+            ConsoleManager.shared.log("❌ parseToken error: \(error.localizedDescription)", color: .red)
         }
         return nil
     }
@@ -434,25 +476,20 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
     }
     
     private func handleSuccessfulAuth() {
-        let content = UNMutableNotificationContent()
-        content.title = "Authentication Successful"
-        content.body = "Token has been generated successfully"
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: nil
-        )
-        
-        UNUserNotificationCenter.current().add(request)
-        
-        ConsoleManager.shared.log("✅ Token generated successfully", color: .green)
-        showAuthSheet = false
-        webView = nil
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.checkTokenStatus()
+        Task {
+            ConsoleManager.shared.log("✅ Token generated successfully", color: .green)
+            showBannerNotification(message: "Authentication Successful!")
+            
+            await MainActor.run {
+                showAuthSheet = false
+                webView = nil
+            }
+            
+            // Wait for file system
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            
+            // Update token status
+            await checkTokenStatus()
         }
     }
     
@@ -494,6 +531,61 @@ class CloudUploaderViewModel: NSObject, ObservableObject, @unchecked Sendable {
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView?.navigationDelegate = self
     }
+    
+    private func sendAuthSuccessNotification() async {
+        do {
+            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+            if granted {
+                let content = UNMutableNotificationContent()
+                content.title = "Authentication Successful"
+                content.body = "Token generated and saved successfully"
+                content.sound = UNNotificationSound.default
+                content.interruptionLevel = .timeSensitive
+                content.categoryIdentifier = "AUTH_SUCCESS"
+                
+                // Create notification category for alert-style
+                let category = UNNotificationCategory(
+                    identifier: "AUTH_SUCCESS",
+                    actions: [],
+                    intentIdentifiers: [],
+                    hiddenPreviewsBodyPlaceholder: "",
+                    options: [.customDismissAction, .hiddenPreviewsShowTitle]
+                )
+                
+                // Register the category
+                let center = UNUserNotificationCenter.current()
+                center.setNotificationCategories([category])
+                
+                // Create immediate trigger
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+                
+                let request = UNNotificationRequest(
+                    identifier: "auth-success-\(UUID().uuidString)",
+                    content: content,
+                    trigger: trigger
+                )
+                
+                try await center.add(request)
+                ConsoleManager.shared.log("📱 Notification sent", color: .green)
+            }
+        } catch {
+            ConsoleManager.shared.log("⚠️ Failed to send notification: \(error.localizedDescription)", color: .orange)
+        }
+    }
+    
+    private func showBannerNotification(message: String, color: Color = .green) {
+        Task { @MainActor in
+            notificationMessage = message
+            notificationColor = color
+            withAnimation {
+                showNotificationBanner = true
+            }
+            try? await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds
+            withAnimation {
+                showNotificationBanner = false
+            }
+        }
+    }
 }
 
 extension CloudUploaderViewModel: WKNavigationDelegate {
@@ -527,5 +619,23 @@ enum CloudUploaderError: LocalizedError {
         case .fileSystemError(let message):
             return "File system error: \(message)"
         }
+    }
+}
+
+struct SuccessOverlayView: View {
+    var body: some View {
+        VStack {
+            Text("✅ Authentication Successful")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.green)
+                .cornerRadius(10)
+                .shadow(radius: 5)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.3))
+        .edgesIgnoringSafeArea(.all)
+        .transition(.opacity)
     }
 }

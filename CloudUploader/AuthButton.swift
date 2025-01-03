@@ -5,12 +5,16 @@ struct AuthButton: View {
     
     var body: some View {
         Button(action: {
-            viewModel.authenticateInApp()
-            viewModel.showAuthSheet = true
+            if viewModel.showRefreshButton {
+                viewModel.tokenManager.refreshToken()
+            } else {
+                viewModel.authenticateInApp()
+                viewModel.showAuthSheet = true
+            }
         }) {
             HStack {
-                Image(systemName: "key.fill")
-                Text("Generate Token")
+                Image(systemName: viewModel.showRefreshButton ? "arrow.clockwise" : "key.fill")
+                Text(viewModel.showRefreshButton ? "Refresh Token" : "Generate Token")
                     .font(.headline)
             }
             .frame(maxWidth: .infinity)

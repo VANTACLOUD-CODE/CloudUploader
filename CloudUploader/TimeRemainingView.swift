@@ -1,26 +1,17 @@
 import SwiftUI
 
 struct TimeRemainingView: View {
-    let label: String
-    let value: String
-    
-    var timeColor: Color {
-        if value.contains("expired") {
-            return .red
-        } else if value.contains("< 1 hour") {
-            return .orange
-        }
-        return .green
-    }
+    @ObservedObject var tokenManager: TokenManager
     
     var body: some View {
-        HStack(spacing: 5) {
-            Text(label)
+        HStack {
+            Text("Time Remaining:")
                 .font(.headline)
                 .foregroundColor(.primary)
-            Text(value)
+            Spacer()
+            Text(tokenManager.countdownDisplay)
                 .font(.headline)
-                .foregroundColor(timeColor)
+                .foregroundColor(tokenManager.remainingTimeColor)
         }
         .padding(.vertical)
         .padding(.horizontal, 20)
@@ -29,5 +20,6 @@ struct TimeRemainingView: View {
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.8))
                 .shadow(radius: 2)
         )
+        .frame(maxWidth: .infinity)
     }
 }
