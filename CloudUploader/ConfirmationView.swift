@@ -58,7 +58,7 @@ struct ConfirmationView: View {
                 }
             }
             .padding(20)
-            .frame(maxWidth: 269) // Constrain dialog width
+            .frame(maxWidth: 369) // Constrain dialog width
             .background(Color(NSColor.controlBackgroundColor).opacity(0.95))
             .cornerRadius(20)
             .shadow(radius: 20)

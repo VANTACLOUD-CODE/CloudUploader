@@ -142,6 +142,13 @@ class TokenManager: ObservableObject {
 
     // MARK: - Refresh Logic
     func refreshToken() {
+        // Don't refresh if more than 5 minutes remaining
+        guard let expiryDate = self.expiryDate,
+              expiryDate.timeIntervalSinceNow <= 300 else { // 300 seconds = 5 minutes
+            ConsoleManager.shared.log("ℹ️ Token refresh not needed yet", color: .blue)
+            return
+        }
+        
         ConsoleManager.shared.log("🔄 Refreshing token...", color: .blue)
         
         runScript(scriptPath: "/Volumes/CloudUploader/CloudUploader/CloudUploader/Scripts/refresh_token.py", 
@@ -158,7 +165,6 @@ class TokenManager: ObservableObject {
                     } else {
                         let errorMsg = response["message"] as? String ?? "Unknown error"
                         ConsoleManager.shared.log("❌ Token refresh failed: \(errorMsg)", color: .red)
-                        // Reset states if refresh failed
                         self.updateTokenStatus(valid: false, remainingTime: "0")
                     }
                 } else {
@@ -196,7 +202,6 @@ class TokenManager: ObservableObject {
         
         tokenStatus = isValid ? "✅ Valid" : "❌ Expired"
         
-        // Format time remaining display with colored text
         if !isValid {
             timeRemaining = "--:-- ⌛️"
             remainingTimeColor = .red
@@ -207,9 +212,10 @@ class TokenManager: ObservableObject {
             let secs = totalSeconds % 60
             timeRemaining = String(format: "%02d:%02d ⌛️", mins, secs)
             
-            if mins >= 30 {
+            // Update color thresholds
+            if mins > 30 {
                 remainingTimeColor = .green
-            } else if mins >= 15 {
+            } else if mins > 10 {
                 remainingTimeColor = .orange
             } else {
                 remainingTimeColor = .red
@@ -223,8 +229,6 @@ class TokenManager: ObservableObject {
         // Log status
         if !isValid {
             ConsoleManager.shared.log("Token Status: ❌ Expired or invalid", color: .red)
-        } else {
-            ConsoleManager.shared.log("Token Status: ✅ Valid (\(timeRemaining))", color: remainingTimeColor)
         }
     }
 

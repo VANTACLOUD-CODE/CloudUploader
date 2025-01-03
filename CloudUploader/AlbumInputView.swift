@@ -47,12 +47,12 @@ struct AlbumInputView: View {
             .disabled(albumName.isEmpty)
             .padding(.horizontal)
             
-            Spacer().frame(height: 8)
+            Spacer().frame(height:0)
         }
-        .padding(.bottom, 8)
-        .frame(width: 400)
+        .padding()
+        .frame(width: 369)
         .background(Color(NSColor.windowBackgroundColor))
-        .cornerRadius(12)
+        .cornerRadius(10)
         .onAppear {
             isTextFieldFocused = true
         }
